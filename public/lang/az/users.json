@@ -1,0 +1,19 @@
+{
+	"pageTitle": "İstifadəçilər",
+	"description": "Açıqlama",
+	"delete": "İstifadəçini sil",
+	"permissions": "İcazələr",
+	"fullName": "Ad",
+	"email": "E-poçt",
+	"password": "Şifrə",
+	"add": "Yeni istifadəçi yarat",
+	"phone": "Telefon nömrəsi",
+	"role": "İstifadəçi rolu",
+	"department": "Şöbə",
+	"name": "Ad",
+	"position": "Vəzifə",
+	"surname": "Soyad",
+	"telephoneNo": "Telefon nömrəsi",
+	"userName": "İstifadəçi adı",
+	"actions": "Əməliyyatlar"
+}

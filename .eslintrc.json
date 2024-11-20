@@ -1,0 +1,68 @@
+{
+	"env": {
+		"browser": true,
+		"es2022": true,
+		"node": true
+	},
+	"extends": [
+		"eslint:recommended", // Eslint recommended configuration by eslint.
+		"plugin:import/recommended", // Linting of ES2015+ import/export syntax.
+		"plugin:import/typescript",
+		"plugin:react/recommended", // Recommended react linting configs.
+		"plugin:react-hooks/recommended", // Recommended react hooks linting configs.
+		"plugin:@typescript-eslint/recommended", // Turns on rules from TypeScript-specific plugin.
+		"plugin:prettier/recommended" // Turns off all rules that are unnecessary or might conflict with Prettier.
+	],
+	"parser": "@typescript-eslint/parser",
+	"parserOptions": {
+		"project": "./tsconfig.json", // Specify where to find the root tsconfig file of your project.
+		"ecmaVersion": "latest",
+		"sourceType": "module",
+		"ecmaFeatures": {
+			"jsx": true // enable jsx for React.
+		}
+	},
+	"plugins": [
+		"react",
+		"react-hooks",
+		"@typescript-eslint",
+		"import",
+		"simple-import-sort" // Plugin for sorting imports in file.
+	],
+	"rules": {
+		"import/first": "warn",
+		"import/newline-after-import": "warn",
+		"import/no-duplicates": "error",
+		"import/no-named-as-default": "off",
+		"import/no-named-as-default-member": "off",
+		"simple-import-sort/imports": "warn",
+		"simple-import-sort/exports": "warn",
+		"react/prop-types": "off",
+		"react/react-in-jsx-scope": "off",
+		"padding-line-between-statements": ["warn", { "blankLine": "always", "prev": "*", "next": "return" }],
+		"@typescript-eslint/no-unused-vars": ["warn"],
+		"@typescript-eslint/no-explicit-any": ["warn"],
+		"react/jsx-sort-props": [
+			"warn",
+			{
+				"callbacksLast": true,
+				"shorthandFirst": true,
+				"ignoreCase": true,
+				"reservedFirst": true,
+				"noSortAlphabetically": true
+			}
+		]
+	},
+	"settings": {
+		"react": {
+			"version": "detect" // auto-detect React version from package.json.
+		},
+		"import/parsers": {
+			"@typescript-eslint/parser": [".ts", ".tsx"] // use typescript-eslint parser for .ts|tsx files.
+		},
+		"import/resolver": {
+			"typescript": true,
+			"node": true
+		}
+	}
+}

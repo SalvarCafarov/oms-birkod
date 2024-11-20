@@ -1,0 +1,19 @@
+{
+	"pageTitle": "Users",
+	"description": "Description",
+	"delete": "Delete user",
+	"permissions": "Permissions",
+	"fullName": "Full Name",
+	"email": "Email",
+	"password": "Password",
+	"add": "Add new user",
+	"phone": "Phone Number",
+	"role": "User role",
+	"department": "Department",
+	"name": "Name",
+	"position": "Position",
+	"surname": "Surname",
+	"telephoneNo": "Telephone Number",
+	"userName": "Username",
+	"actions": "Actions"
+}

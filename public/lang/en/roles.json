@@ -1,0 +1,21 @@
+{
+	"pageTitle": "Roles",
+	"add": "Add new role",
+	"close": "Close",
+	"name": "Name",
+	"description": "Description",
+	"delete": "Delete role",
+	"permissions": "Permissions",
+	"Admin": "Admin",
+	"İstifadəçi profil": "User Profile",
+	"İstifadəçi şifrəsini yenilə": "Change User Password",
+	"İstifadəçi əlavə et": "Add User",
+	"İstifadəçini yenilə": "Update User",
+	"İstifadəçini sil": "Delete User",
+	"Sorğu formu əlavə et": "Add Request Form",
+	"Sorğu formunu yenilə": "Update Request Form",
+	"Sorğu formunu sil": "Delete Request Form",
+	"Sorğu formu siyahısı": "Request Form List",
+	"Sorğu formunu təsdiqlə": "Approve Request Form",
+	"Sorğu formunu inkar et": "Decline Request Form"
+}

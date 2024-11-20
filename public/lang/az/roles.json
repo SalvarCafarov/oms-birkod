@@ -1,0 +1,21 @@
+{
+	"pageTitle": "Rollar",
+	"add": "Yeni rol yarat",
+	"close": "Bağla",
+	"name": "Ad",
+	"description": "Açıqlama",
+	"delete": "Rolu sil",
+	"permissions": "İcazələr",
+	"Admin": "Admin",
+	"İstifadəçi profil": "İstifadəçi profil",
+	"İstifadəçi şifrəsini yenilə": "İstifadəçi şifrəsini yenilə",
+	"İstifadəçi əlavə et": "İstifadəçi əlavə et",
+	"İstifadəçini yenilə": "İstifadəçini yenilə",
+	"İstifadəçini sil": "İstifadəçini sil",
+	"Sorğu formu əlavə et": "Sorğu formu əlavə et",
+	"Sorğu formunu yenilə": "Sorğu formunu yenilə",
+	"Sorğu formunu sil": "Sorğu formunu sil",
+	"Sorğu formu siyahısı": "Sorğu formu siyahısı",
+	"Sorğu formunu təsdiqlə": "Sorğu formunu təsdiqlə",
+	"Sorğu formunu inkar et": "Sorğu formunu inkar et"
+}
