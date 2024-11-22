@@ -17,6 +17,11 @@ const menuItems = (): VerticalNavItemsType => {
 			icon: 'tabler:users',
 			path: '/users',
 		},
+		{
+			title: 'room-type',
+			icon: 'tabler:home-edit',
+			path: '/room-type',
+		},
 	];
 };
 

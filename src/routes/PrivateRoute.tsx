@@ -6,9 +6,9 @@ export const PrivateRoute = () => {
 	const location = useLocation();
 	const isLoggedIn = useAppSelector(selectIsLoggedIn);
 
-	// if (!isLoggedIn) {
-	// 	return <Navigate replace to="/login" state={{ from: location }} />;
-	// }
+	if (!isLoggedIn) {
+		return <Navigate replace to="/login" state={{ from: location }} />;
+	}
 
 	return <Outlet />;
 };

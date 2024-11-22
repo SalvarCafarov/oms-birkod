@@ -8,6 +8,7 @@ import UsersPage from 'views/dashboard/users';
 import NoPermission from 'views/misc/no-permission';
 
 import { PrivateRoute as PrivateRoutes } from './PrivateRoute';
+import RoomType from 'views/dashboard/room-type';
 
 const RootLayout = lazy(() => import('views/layout/root'));
 const AuthLayout = lazy(() => import('views/layout/auth'));
@@ -67,6 +68,14 @@ export const router = createBrowserRouter([
 								element: (
 									<PermissionRoute permission="user.roles">
 										<UsersPage />
+									</PermissionRoute>
+								),
+							},
+							{
+								path: '/room-type',
+								element: (
+									<PermissionRoute permission="user.roomType">
+										<RoomType />
 									</PermissionRoute>
 								),
 							},

@@ -30,11 +30,11 @@ export interface PaginationResponse {
 }
 
 export interface Filter {
-	field: string;
-	operator: Operator;
-	value: string;
-	logic: Logic;
-	filters: Filter[];
+	field?: string;
+	operator?: Operator;
+	value?: string;
+	logic?: Logic;
+	filters?: Filter[];
 }
 
 export type Operator =

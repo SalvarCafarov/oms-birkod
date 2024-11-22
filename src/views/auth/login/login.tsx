@@ -69,7 +69,7 @@ const Root = styled(Box)<BoxProps>(({ theme }) => ({
 }));
 
 interface FormData {
-	username: string;
+	email: string;
 	password: string;
 	rememberMe: boolean;
 }
@@ -101,7 +101,7 @@ export const Login = () => {
 	};
 
 	const initialValues = {
-		username: '',
+		email: '',
 		password: '',
 		rememberMe: true,
 	};
@@ -132,9 +132,9 @@ export const Login = () => {
 								<Form>
 									<Grid container rowSpacing={4}>
 										<Grid item xs={12}>
-											<InputLabel>{t('username')}</InputLabel>
+											<InputLabel>{t('email')}</InputLabel>
 											<Field
-												name="username"
+												name="email"
 												size="small"
 												placeholder="example@gmail.com"
 												component={TextField}
