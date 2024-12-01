@@ -18,14 +18,24 @@ const menuItems = (): VerticalNavItemsType => {
 			path: '/users',
 		},
 		{
-			title: 'room-type',
+			title: 'RoomType',
 			icon: 'tabler:home-edit',
 			path: '/room-type',
 		},
 		{
-			title: 'room',
+			title: 'Room',
 			icon: 'tabler:home-plus',
 			path: '/room',
+		},
+		{
+			title: 'RoomPrice',
+			icon: 'tabler:home-plus',
+			path: '/room-price',
+		},
+		{
+			title: 'RoomExtra',
+			icon: 'tabler:home-plus',
+			path: '/room-extra',
 		},
 	];
 };

@@ -4,7 +4,9 @@ import { lazy } from 'react';
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import Home from 'views/dashboard/home';
 import RolesPage from 'views/dashboard/roles';
-import { Room } from 'views/dashboard/room/room';
+import Room from 'views/dashboard/room';
+import RoomExtra from 'views/dashboard/room-extra';
+import RoomPrice from 'views/dashboard/room-price';
 import RoomType from 'views/dashboard/room-type';
 import UsersPage from 'views/dashboard/users';
 import NoPermission from 'views/misc/no-permission';
@@ -75,7 +77,7 @@ export const router = createBrowserRouter([
 							{
 								path: '/room-type',
 								element: (
-									<PermissionRoute permission="user.roomType">
+									<PermissionRoute permission="roomType.list">
 										<RoomType />
 									</PermissionRoute>
 								),
@@ -83,8 +85,24 @@ export const router = createBrowserRouter([
 							{
 								path: '/room',
 								element: (
-									<PermissionRoute permission="user.room">
+									<PermissionRoute permission="room.list">
 										<Room />
+									</PermissionRoute>
+								),
+							},
+							{
+								path: '/room-price',
+								element: (
+									<PermissionRoute permission="roomPrice.list">
+										<RoomPrice />
+									</PermissionRoute>
+								),
+							},
+							{
+								path: '/room-extra',
+								element: (
+									<PermissionRoute permission="roomExtra.list">
+										<RoomExtra />
 									</PermissionRoute>
 								),
 							},
