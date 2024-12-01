@@ -1,1 +1,1 @@
-export { RoomType as default } from './room';
+export { Room as default } from './room';

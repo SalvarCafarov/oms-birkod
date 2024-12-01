@@ -2,6 +2,7 @@ import { Box, Card, IconButton, Typography } from '@mui/material';
 import { DataGrid, GridColDef, GridPaginationModel } from '@mui/x-data-grid';
 import { keepPreviousData, useMutation, useQuery } from '@tanstack/react-query';
 import { room, RoomResponseDto } from 'api/services/room';
+import { roomType } from 'api/services/room-type';
 import Icon from 'components/icon';
 import { Modal } from 'components/modal/modal';
 import { Spinner } from 'components/spinner';
@@ -29,6 +30,13 @@ export const Table = () => {
 		pageSize: 10,
 	});
 
+	const { data: roomTypeList } = useQuery({
+		queryKey: [roomType.queryKey],
+		queryFn: () => roomType.getListNonPaging(),
+		placeholderData: [],
+		staleTime: Infinity,
+	});
+
 	const { data: roomList, isLoading } = useQuery({
 		queryKey: [room.queryKey, paginationModel],
 		queryFn: () => room.getListByDynamic(paginationModel, {}),
@@ -40,6 +48,7 @@ export const Table = () => {
 		mutationFn: room.delete,
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: [room.queryKey] });
+			toast.success(t('successfullyDeleted'));
 		},
 	});
 
@@ -48,11 +57,31 @@ export const Table = () => {
 	const columns: GridColDef[] = [
 		{
 			flex: 0.3,
-			field: 'roomNumber', // Burada 'roomName' yerine 'name' kullanıyorum
+			field: 'roomNumber',
 			minWidth: 200,
-			headerName: t('name'),
+			headerName: t('Room Number'),
 			renderCell: ({ row }: CellType) => (
 				<Typography sx={{ color: 'text.secondary' }}>{row.roomNumber}</Typography>
+			),
+		},
+		{
+			flex: 0.5,
+			minWidth: 240,
+			field: 'roomTypeId',
+			headerName: t('Room Type'),
+			renderCell: ({ row }: CellType) => {
+				const roomTypeName = roomTypeList?.find((item) => item.key === row.roomTypeId)?.typeName || '-';
+
+				return <Typography sx={{ color: 'text.secondary' }}>{roomTypeName}</Typography>;
+			},
+		},
+		{
+			flex: 0.5,
+			minWidth: 240,
+			field: 'isAvailable',
+			headerName: t('isAvailable'),
+			renderCell: ({ row }: CellType) => (
+				<Typography sx={{ color: 'text.secondary' }}>{row.isAvailable ? t('True') : t('False')}</Typography>
 			),
 		},
 		{
@@ -76,13 +105,7 @@ export const Table = () => {
 							event.stopPropagation();
 							confirm({
 								confirmText: t('delete'),
-								onConfirm: () => {
-									deleteRoom(row.key, {
-										onSuccess: () => {
-											toast.success(t('successfullyDeleted'));
-										},
-									});
-								},
+								onConfirm: () => deleteRoom(row.key),
 							});
 						}}
 					>
