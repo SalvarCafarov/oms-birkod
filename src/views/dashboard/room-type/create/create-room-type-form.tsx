@@ -69,7 +69,7 @@ export const AddRoomTypeForm = ({ handleDialogToggle }: Props) => {
 									<Field name="typeName" size="small" component={TextField} />
 								</Grid>
 								<Grid item xs={12}>
-									<InputLabel required>{t('description')}</InputLabel>
+									<InputLabel>{t('description')}</InputLabel>
 									<Field multiline rows={3} name="description" component={TextField} />
 								</Grid>
 							</Grid>

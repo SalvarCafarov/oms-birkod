@@ -91,20 +91,7 @@ export const EditRoom = ({ roomProp, handleDialogToggle }: Props) => {
 								</Grid>
 
 								<Grid item xs={12}>
-									<FormControlLabel
-										control={
-											<Checkbox
-												defaultChecked={roomProp!.isAvailable}
-												name="isAvailable"
-												value={values.isAvailable}
-												onChange={(event) => setFieldValue('isAvailable', event.target.checked)}
-											/>
-										}
-										label={t('isAvailable')}
-									/>
-								</Grid>
-								<Grid item xs={12}>
-									<InputLabel>{t('roomTypeId')}</InputLabel>
+									<InputLabel required>{t('roomTypeId')}</InputLabel>
 									<Autocomplete
 										fullWidth
 										id="room-type-autocomplete"
@@ -124,6 +111,19 @@ export const EditRoom = ({ roomProp, handleDialogToggle }: Props) => {
 										onChange={(event, value) => {
 											setFieldValue('roomTypeId', value?.key ?? null);
 										}}
+									/>
+								</Grid>
+								<Grid item xs={12}>
+									<FormControlLabel
+										control={
+											<Checkbox
+												defaultChecked={roomProp!.isAvailable}
+												name="isAvailable"
+												value={values.isAvailable}
+												onChange={(event) => setFieldValue('isAvailable', event.target.checked)}
+											/>
+										}
+										label={t('isAvailable')}
 									/>
 								</Grid>
 							</Grid>
