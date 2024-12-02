@@ -1,7 +1,7 @@
 import { Box, Card, IconButton, Typography } from '@mui/material';
 import { DataGrid, GridColDef, GridPaginationModel } from '@mui/x-data-grid';
 import { keepPreviousData, useMutation, useQuery } from '@tanstack/react-query';
-import { roomType, RoomTypeResponseDto } from 'api/services/room-type';
+import { travelAgency, TravelAgencyResponseDto } from 'api/services/travel-agency';
 import Icon from 'components/icon';
 import { Modal } from 'components/modal/modal';
 import { Spinner } from 'components/spinner';
@@ -11,34 +11,34 @@ import { useState } from 'react';
 import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
 
-import { EditRoomType } from '../edit/edit-room-type-form';
+import { EditTravelAgency } from '../edit/edit-travel-agency-form';
 import { TableHeader } from './table-header';
 
 interface CellType {
-	row: RoomTypeResponseDto;
+	row: TravelAgencyResponseDto;
 }
 
 export const Table = () => {
 	const { t } = useTranslation();
 	const { confirm } = useConfirmation();
 	const [editOpen, setEditOpen] = useState<boolean>(false);
-	const [selectedRoomType, setSelectedRoomType] = useState<RoomTypeResponseDto>();
+	const [selectedTravelAgency, setSelectedTravelAgency] = useState<TravelAgencyResponseDto>();
 	const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({
 		page: 0,
 		pageSize: 10,
 	});
 
-	const { data: roomTypeList, isPending } = useQuery({
-		queryKey: [roomType.queryKey, paginationModel],
-		queryFn: () => roomType.getListByDynamic(paginationModel, {}),
+	const { data: travelAgencyList, isPending } = useQuery({
+		queryKey: [travelAgency.queryKey, paginationModel],
+		queryFn: () => travelAgency.getListByDynamic(paginationModel, {}),
 		placeholderData: keepPreviousData,
 		staleTime: Infinity,
 	});
 
-	const { mutate: deleteRoomType } = useMutation({
-		mutationFn: roomType.delete,
+	const { mutate: deleteTravelAgency } = useMutation({
+		mutationFn: travelAgency.delete,
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: [roomType.queryKey] });
+			queryClient.invalidateQueries({ queryKey: [travelAgency.queryKey] });
 		},
 	});
 
@@ -47,18 +47,20 @@ export const Table = () => {
 	const columns: GridColDef[] = [
 		{
 			flex: 0.3,
-			field: 'name',
+			field: 'agencyName',
 			minWidth: 200,
-			headerName: t('name'),
-			renderCell: ({ row }: CellType) => <Typography sx={{ color: 'text.secondary' }}>{row.typeName}</Typography>,
+			headerName: t('agencyName'),
+			renderCell: ({ row }: CellType) => (
+				<Typography sx={{ color: 'text.secondary' }}>{row.agencyName}</Typography>
+			),
 		},
 		{
 			flex: 0.5,
 			minWidth: 240,
-			field: 'description',
-			headerName: t('description'),
+			field: 'discountRate',
+			headerName: t('discountRate'),
 			renderCell: ({ row }: CellType) => (
-				<Typography sx={{ color: 'text.secondary' }}>{row.description || '-'}</Typography>
+				<Typography sx={{ color: 'text.secondary' }}>{row.discountRate || '-'}</Typography>
 			),
 		},
 		{
@@ -71,7 +73,7 @@ export const Table = () => {
 				<Box sx={{ display: 'flex', alignItems: 'center' }}>
 					<IconButton
 						onClick={() => {
-							setSelectedRoomType(row);
+							setSelectedTravelAgency(row);
 							handleEditDialogToggle();
 						}}
 					>
@@ -83,7 +85,7 @@ export const Table = () => {
 							confirm({
 								confirmText: t('delete'),
 								onConfirm: () => {
-									deleteRoomType(row.key, {
+									deleteTravelAgency(row.key, {
 										onSuccess: () => {
 											toast.success(t('successfullyDeleted'));
 										},
@@ -110,17 +112,20 @@ export const Table = () => {
 						autoHeight
 						disableRowSelectionOnClick
 						disableColumnMenu
-						rows={roomTypeList?.items || []}
+						rows={travelAgencyList?.items || []}
 						getRowId={(row) => row.key}
 						columns={columns}
 						paginationMode="server"
-						rowCount={roomTypeList?.count}
+						rowCount={travelAgencyList?.count}
 						paginationModel={paginationModel}
 						pageSizeOptions={[10, 25, 50, 100]}
 						onPaginationModelChange={setPaginationModel}
 					/>
 					<Modal open={editOpen} title={t('edit')} onClose={handleEditDialogToggle}>
-						<EditRoomType roomTypeProp={selectedRoomType} handleDialogToggle={handleEditDialogToggle} />
+						<EditTravelAgency
+							travelAgencyProp={selectedTravelAgency}
+							handleDialogToggle={handleEditDialogToggle}
+						/>
 					</Modal>
 				</>
 			)}

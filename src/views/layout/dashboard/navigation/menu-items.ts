@@ -37,6 +37,11 @@ const menuItems = (): VerticalNavItemsType => {
 			icon: 'tabler:home-plus',
 			path: '/room-extra',
 		},
+		{
+			title: 'TravelAgency',
+			icon: 'tabler:home-plus',
+			path: '/travel-agency',
+		},
 	];
 };
 
