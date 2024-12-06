@@ -41,7 +41,6 @@ export const AddRoomForm = ({ handleDialogToggle }: Props) => {
 			...formData,
 			roomTypeId: formData.roomTypeId ?? 0,
 		};
-		console.log(payload);
 
 		addRoom(payload, {
 			onSuccess: () => {
@@ -89,7 +88,6 @@ export const AddRoomForm = ({ handleDialogToggle }: Props) => {
 									helperText={touched.roomNumber && errors.roomNumber}
 									onChange={(event) => {
 										setFieldValue('roomNumber', event.target.value);
-										console.log();
 									}}
 								/>
 							</Grid>

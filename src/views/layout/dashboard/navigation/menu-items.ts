@@ -42,6 +42,11 @@ const menuItems = (): VerticalNavItemsType => {
 			icon: 'tabler:home-plus',
 			path: '/travel-agency',
 		},
+		{
+			title: 'SpecialDayPrice',
+			icon: 'tabler:home-plus',
+			path: '/special-day-price',
+		},
 	];
 };
 

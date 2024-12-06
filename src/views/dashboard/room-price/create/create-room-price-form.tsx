@@ -41,7 +41,6 @@ export const AddRoomPriceForm = ({ handleDialogToggle }: Props) => {
 			...formData,
 			roomTypeId: formData.roomTypeId ?? 0,
 		};
-		console.log(payload);
 
 		addRoomPrice(payload, {
 			onSuccess: () => {

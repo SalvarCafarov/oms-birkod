@@ -32,7 +32,6 @@ export const AddRoomExtraForm = ({ handleDialogToggle }: Props) => {
 		const payload = {
 			...formData,
 		};
-		console.log(payload);
 
 		addRoomExtra(payload, {
 			onSuccess: () => {
