@@ -8,6 +8,7 @@ import Room from 'views/dashboard/room';
 import RoomExtra from 'views/dashboard/room-extra';
 import RoomPrice from 'views/dashboard/room-price';
 import RoomType from 'views/dashboard/room-type';
+import TravelAgency from 'views/dashboard/travel-agency';
 import UsersPage from 'views/dashboard/users';
 import NoPermission from 'views/misc/no-permission';
 
@@ -103,6 +104,14 @@ export const router = createBrowserRouter([
 								element: (
 									<PermissionRoute permission="roomExtra.list">
 										<RoomExtra />
+									</PermissionRoute>
+								),
+							},
+							{
+								path: '/travel-agency',
+								element: (
+									<PermissionRoute permission="travelAgency.list">
+										<TravelAgency />
 									</PermissionRoute>
 								),
 							},
