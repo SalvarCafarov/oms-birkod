@@ -1,4 +1,4 @@
-import { Autocomplete, Box, Button, Checkbox, FormControlLabel, Grid, InputLabel, TextField } from '@mui/material';
+import { Autocomplete, Box, Button, Grid, InputLabel, TextField } from '@mui/material';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { room } from 'api/services/room';
 import { roomType, RoomTypeResponseDto } from 'api/services/room-type';
@@ -9,6 +9,12 @@ import { useTranslation } from 'react-i18next';
 
 import { validationSchema } from './validationSchema';
 
+// const roomStatus = [
+// 	{ key: 0, label: 'Available' },
+// 	{ key: 1, label: 'Occupied' },
+// 	{ key: 2, label: 'Cleaning' },
+// ];
+
 interface Props {
 	handleDialogToggle: () => void;
 }
@@ -16,7 +22,7 @@ interface Props {
 interface FormData {
 	roomNumber: string;
 	roomTypeId: number | null;
-	isAvailable: boolean;
+	// roomStatus: number | null; // roomStatus artık sayı olacak
 }
 
 export const AddRoomForm = ({ handleDialogToggle }: Props) => {
@@ -40,6 +46,7 @@ export const AddRoomForm = ({ handleDialogToggle }: Props) => {
 		const payload = {
 			...formData,
 			roomTypeId: formData.roomTypeId ?? 0,
+			// roomStatus: formData.roomStatus ?? 0,
 		};
 
 		addRoom(payload, {
@@ -56,7 +63,7 @@ export const AddRoomForm = ({ handleDialogToggle }: Props) => {
 	const initialValues: FormData = {
 		roomNumber: '',
 		roomTypeId: null,
-		isAvailable: true,
+		// roomStatus: null, // Başlangıç değeri null
 	};
 
 	const translatedValidationSchema = validationSchema(t);
@@ -116,18 +123,29 @@ export const AddRoomForm = ({ handleDialogToggle }: Props) => {
 								/>
 							</Grid>
 
-							<Grid item xs={12}>
-								<FormControlLabel
-									label={t('isAvailable')}
-									control={
-										<Checkbox
-											checked={values.isAvailable}
-											name="isAvailable"
-											onChange={(event) => setFieldValue('isAvailable', event.target.checked)}
+							{/* <Grid item xs={12}>
+								<InputLabel required>{t('roomStatus')}</InputLabel>
+								<Autocomplete
+									fullWidth
+									id="room-status-autocomplete"
+									size="small"
+									options={roomStatus}
+									getOptionLabel={(option) => option.label}
+									isOptionEqualToValue={(option, value) => option.key === value?.key}
+									value={roomStatus.find((item) => item.key === values.roomStatus) || null}
+									renderInput={(params) => (
+										<TextField
+											{...params}
+											variant="outlined"
+											error={touched.roomStatus && Boolean(errors.roomStatus)}
+											helperText={touched.roomStatus && errors.roomStatus}
 										/>
-									}
+									)}
+									onChange={(event, value) => {
+										setFieldValue('roomStatus', value?.key ?? null);
+									}}
 								/>
-							</Grid>
+							</Grid> */}
 						</Grid>
 						<Box className="demo-space-x" sx={{ '& > :last-child': { mr: '0 !important' } }}>
 							<Button type="submit" variant="contained">

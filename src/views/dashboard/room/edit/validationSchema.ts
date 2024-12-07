@@ -6,6 +6,6 @@ export const validationSchema = (t) => {
 		roomTypeId: Yup.number()
 			.nullable() // Null değer kabul ediliyor
 			.required(t('validation:required')), // Ancak boş bırakılamaz
-		isAvailable: Yup.mixed().oneOf([true, false], t('validation:required')).required(t('validation:required')),
+		roomStatus: Yup.number().required(t('validation:required')),
 	});
 };

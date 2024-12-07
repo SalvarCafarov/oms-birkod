@@ -1,9 +1,12 @@
 export interface RoomRequestDto {
 	roomNumber: string;
 	roomTypeId: number;
-	isAvailable: boolean;
+	// roomStatus: number;
 }
 
-export interface RoomResponseDto extends RoomRequestDto {
+export interface RoomResponseDto {
 	key: number;
+	roomNumber: string;
+	roomTypeId: number;
+	roomStatus: number;
 }

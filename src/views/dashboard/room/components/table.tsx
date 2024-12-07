@@ -76,14 +76,24 @@ export const Table = () => {
 			},
 		},
 		{
-			flex: 0.5,
-			minWidth: 240,
-			field: 'isAvailable',
-			headerName: t('isAvailable'),
+			flex: 0.3,
+			field: 'roomStatus',
+			minWidth: 200,
+			headerName: t('Status'),
 			renderCell: ({ row }: CellType) => (
-				<Typography sx={{ color: 'text.secondary' }}>{row.isAvailable ? t('True') : t('False')}</Typography>
+				<Typography sx={{ color: 'text.secondary' }}>{row.roomStatus}</Typography>
 			),
 		},
+		// {
+		// 	flex: 0.5,
+		// 	minWidth: 240,
+		// 	field: 'roomStatus',
+		// 	headerName: t('isAvailable'),
+		// 	renderCell: ({ row }: CellType) => (
+		// 		<Typography sx={{ color: 'text.secondary' }}>{row.roomStatus ? t('True') : t('False')}</Typography>
+		// 	),
+		// },
+
 		{
 			flex: 0.2,
 			minWidth: 120,

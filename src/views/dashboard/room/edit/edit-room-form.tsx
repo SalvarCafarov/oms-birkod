@@ -1,13 +1,19 @@
-import { Autocomplete, Box, Button, Checkbox, FormControlLabel, Grid, InputLabel, TextField } from '@mui/material';
+import { Autocomplete, Box, Button, Grid, InputLabel, TextField } from '@mui/material';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { room, RoomResponseDto } from 'api/services/room';
 import { roomType, RoomTypeResponseDto } from 'api/services/room-type';
-import { Field, Form, Formik } from 'formik';
+import { Form, Formik } from 'formik';
 import { queryClient } from 'main';
 import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
 
 import { validationSchema } from './validationSchema';
+
+const roomStatus = [
+	{ key: 0, label: 'Available' },
+	{ key: 1, label: 'Occupied' },
+	{ key: 2, label: 'Cleaning' },
+];
 
 interface Props {
 	roomProp: RoomResponseDto | null;
@@ -17,7 +23,7 @@ interface Props {
 interface FormData {
 	roomNumber: string;
 	roomTypeId: number;
-	isAvailable: boolean | true;
+	roomStatus: number | null; // Room status stored as a key
 }
 
 export const EditRoom = ({ roomProp, handleDialogToggle }: Props) => {
@@ -27,19 +33,24 @@ export const EditRoom = ({ roomProp, handleDialogToggle }: Props) => {
 		mutationFn: room.update,
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: [room.queryKey] });
+			toast.success(t('successfullyUpdated'));
+			handleDialogToggle();
 		},
 	});
 
 	const handleSubmit = (formData: FormData) => {
-		updateRoom(
-			{ ...formData, key: roomProp!.key },
-			{
-				onSuccess: () => {
-					toast.success(t('successfullyUpdated'));
-					handleDialogToggle();
-				},
+		const payload = {
+			...formData,
+			key: roomProp!.key,
+			roomStatus: formData.roomStatus ?? 0, // Default to 0 if null
+		};
+
+		updateRoom(payload, {
+			onSuccess: () => {
+				toast.success(t('successfullyUpdated'));
+				handleDialogToggle();
 			},
-		);
+		});
 	};
 
 	const { data: roomTypeList } = useQuery({
@@ -49,96 +60,107 @@ export const EditRoom = ({ roomProp, handleDialogToggle }: Props) => {
 		staleTime: Infinity,
 	});
 
-	const initialValues = {
+	// Initialize form values
+	const initialValues: FormData = {
 		roomNumber: roomProp?.roomNumber || '',
 		roomTypeId: roomProp?.roomTypeId || 0,
-		isAvailable: roomProp?.isAvailable || true,
+		roomStatus: roomProp?.roomStatus ?? null, // Initialize with existing value or null
 	};
-
-	const translatedValidationSchema = validationSchema(t);
 
 	return (
 		<Formik
 			enableReinitialize
 			initialValues={initialValues}
-			validationSchema={translatedValidationSchema}
+			validationSchema={validationSchema(t)}
 			onSubmit={handleSubmit}
 		>
-			{({ values, touched, errors, setFieldValue }) => {
-				return (
-					<Form>
-						<Box
-							sx={{
-								mt: 4,
-								mx: 'auto',
-								width: '100%',
-								maxWidth: 360,
-								display: 'flex',
-								alignItems: 'center',
-								flexDirection: 'column',
-							}}
-						>
-							<Grid container rowSpacing={4}>
-								<Grid item xs={12}>
-									<InputLabel required>{t('roomNumber')}</InputLabel>
-									<Field
-										name="roomNumber"
-										size="small"
-										component={TextField}
-										defaultValue={roomProp?.roomNumber}
-										onChange={(event) => setFieldValue('roomNumber', event.target.value)}
-									/>
-								</Grid>
-
-								<Grid item xs={12}>
-									<InputLabel required>{t('roomTypeId')}</InputLabel>
-									<Autocomplete
-										fullWidth
-										id="room-type-autocomplete"
-										size="small"
-										options={roomTypeList || []}
-										getOptionLabel={(option: RoomTypeResponseDto) => option?.typeName || ''}
-										isOptionEqualToValue={(option, value) => option.key === value?.key}
-										value={roomTypeList?.find((item) => item.key === values.roomTypeId) || null}
-										renderInput={(params) => (
-											<TextField
-												{...params}
-												variant="outlined"
-												error={touched.roomTypeId && Boolean(errors.roomTypeId)}
-												helperText={touched.roomTypeId && errors.roomTypeId}
-											/>
-										)}
-										onChange={(event, value) => {
-											setFieldValue('roomTypeId', value?.key ?? null);
-										}}
-									/>
-								</Grid>
-								<Grid item xs={12}>
-									<FormControlLabel
-										control={
-											<Checkbox
-												defaultChecked={roomProp!.isAvailable}
-												name="isAvailable"
-												value={values.isAvailable}
-												onChange={(event) => setFieldValue('isAvailable', event.target.checked)}
-											/>
-										}
-										label={t('isAvailable')}
-									/>
-								</Grid>
+			{({ values, touched, errors, setFieldValue }) => (
+				<Form>
+					<Box
+						sx={{
+							mt: 4,
+							mx: 'auto',
+							width: '100%',
+							maxWidth: 360,
+							display: 'flex',
+							alignItems: 'center',
+							flexDirection: 'column',
+						}}
+					>
+						<Grid container rowSpacing={4}>
+							{/* Room Number */}
+							<Grid item xs={12}>
+								<InputLabel required>{t('roomNumber')}</InputLabel>
+								<TextField
+									fullWidth
+									name="roomNumber"
+									size="small"
+									variant="outlined"
+									value={values.roomNumber}
+									error={touched.roomNumber && Boolean(errors.roomNumber)}
+									helperText={touched.roomNumber && errors.roomNumber}
+									onChange={(event) => setFieldValue('roomNumber', event.target.value)}
+								/>
 							</Grid>
-							<Box className="demo-space-x" sx={{ '& > :last-child': { mr: '0 !important' } }}>
-								<Button type="submit" variant="contained">
-									{t('save')}
-								</Button>
-								<Button type="reset" variant="tonal" color="secondary" onClick={handleDialogToggle}>
-									{t('discard')}
-								</Button>
-							</Box>
+
+							{/* Room Type */}
+							<Grid item xs={12}>
+								<InputLabel required>{t('roomType')}</InputLabel>
+								<Autocomplete
+									fullWidth
+									id="room-type-autocomplete"
+									size="small"
+									options={roomTypeList || []}
+									getOptionLabel={(option: RoomTypeResponseDto) => option?.typeName || ''}
+									isOptionEqualToValue={(option, value) => option.key === value?.key}
+									value={roomTypeList?.find((item) => item.key === values.roomTypeId) || null}
+									renderInput={(params) => (
+										<TextField
+											{...params}
+											variant="outlined"
+											error={touched.roomTypeId && Boolean(errors.roomTypeId)}
+											helperText={touched.roomTypeId && errors.roomTypeId}
+										/>
+									)}
+									onChange={(event, value) => setFieldValue('roomTypeId', value?.key ?? null)}
+								/>
+							</Grid>
+
+							{/* Room Status */}
+							<Grid item xs={12}>
+								<InputLabel required>{t('roomStatus')}</InputLabel>
+								<Autocomplete
+									fullWidth
+									id="room-status-autocomplete"
+									size="small"
+									options={roomStatus}
+									getOptionLabel={(option) => option.label}
+									isOptionEqualToValue={(option, value) => option.key === value?.key}
+									value={roomStatus.find((item) => item.key === values.roomStatus) || null}
+									renderInput={(params) => (
+										<TextField
+											{...params}
+											variant="outlined"
+											error={touched.roomStatus && Boolean(errors.roomStatus)}
+											helperText={touched.roomStatus && errors.roomStatus}
+										/>
+									)}
+									onChange={(event, value) => setFieldValue('roomStatus', value?.key ?? null)}
+								/>
+							</Grid>
+						</Grid>
+
+						<Box className="demo-space-x" sx={{ '& > :last-child': { mr: '0 !important' } }}>
+							<Button type="submit" variant="contained">
+								{t('save')}
+							</Button>
+							<Button type="reset" variant="tonal" color="secondary" onClick={handleDialogToggle}>
+								{t('discard')}
+							</Button>
 						</Box>
-					</Form>
-				);
-			}}
+					</Box>
+				</Form>
+			)}
 		</Formik>
 	);
 };
