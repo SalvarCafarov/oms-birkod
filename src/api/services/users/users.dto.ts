@@ -3,9 +3,11 @@ import { User } from 'types';
 import { PaginationResponse } from '../types';
 
 export interface UserCreateDto {
-	fullName: string;
-	phone: string;
+	name: string;
+	surName: string;
+	telephoneNo: string;
 	password: string;
+	isActive: string;
 	email: string;
 }
 
@@ -15,15 +17,19 @@ export interface UsersGetAllResponseDto extends PaginationResponse {
 
 export interface UserUpdateDto {
 	key: number;
-	fullName: string;
-	phone: string;
+	name: string;
+	surName: string;
+	telephoneNo: string;
+	password: string;
+	isActive: string;
 	email: string;
 }
 
 export interface UsersLDAPResponseDto {
 	name: string;
-	surname: string;
-	position: string;
-	department: string;
+	surName: string;
+	telephoneNo: string;
+	password: string;
+	email: string;
 	key: number;
 }

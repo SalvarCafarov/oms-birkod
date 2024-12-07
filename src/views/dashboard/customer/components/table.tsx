@@ -50,66 +50,8 @@ export const Table = () => {
 
 	const columns: GridColDef[] = [
 		{
-			flex: 0.5,
-			field: 'name',
-			minWidth: 200,
-			headerName: t('Name'),
-			renderCell: ({ row }: CellType) => <Typography sx={{ color: 'text.secondary' }}>{row.name}</Typography>,
-		},
-		{
-			flex: 0.5,
-			field: 'surName',
-			minWidth: 200,
-			headerName: t('SurName'),
-			renderCell: ({ row }: CellType) => <Typography sx={{ color: 'text.secondary' }}>{row.surName}</Typography>,
-		},
-		{
-			flex: 0.5,
-			field: 'fatherName',
-			minWidth: 200,
-			headerName: t('FatherName'),
-			renderCell: ({ row }: CellType) => (
-				<Typography sx={{ color: 'text.secondary' }}>{row.fatherName}</Typography>
-			),
-		},
-		{
-			flex: 0.5,
-			field: 'passportNo',
-			minWidth: 200,
-			headerName: t('PassportNo'),
-			renderCell: ({ row }: CellType) => (
-				<Typography sx={{ color: 'text.secondary' }}>{row.passportNo}</Typography>
-			),
-		},
-		{
-			flex: 0.5,
-			field: 'telephoneNo',
-			minWidth: 200,
-			headerName: t('TelephoneNo'),
-			renderCell: ({ row }: CellType) => (
-				<Typography sx={{ color: 'text.secondary' }}>{row.telephoneNo}</Typography>
-			),
-		},
-		{
-			flex: 0.5,
-			field: 'email',
-			minWidth: 200,
-			headerName: t('Email'),
-			renderCell: ({ row }: CellType) => <Typography sx={{ color: 'text.secondary' }}>{row.email}</Typography>,
-		},
-		{
-			flex: 0.5,
-			field: 'birthday',
-			minWidth: 200,
-			headerName: t('Birthday'),
-			renderCell: ({ row }: CellType) => (
-				<Typography sx={{ color: 'text.secondary' }}>{new Date(row.birthday).toLocaleDateString()}</Typography>
-			),
-		},
-
-		{
 			flex: 0.2,
-			minWidth: 120,
+			minWidth: 100,
 			sortable: false,
 			field: 'actions',
 			headerName: t('actions'),
@@ -135,6 +77,63 @@ export const Table = () => {
 						<Icon icon="tabler:trash" style={{ pointerEvents: 'none' }} />
 					</IconButton>
 				</Box>
+			),
+		},
+		{
+			flex: 0.5,
+			field: 'name',
+			minWidth: 70,
+			headerName: t('Name'),
+			renderCell: ({ row }: CellType) => <Typography sx={{ color: 'text.secondary' }}>{row.name}</Typography>,
+		},
+		{
+			flex: 0.5,
+			field: 'surName',
+			minWidth: 70,
+			headerName: t('SurName'),
+			renderCell: ({ row }: CellType) => <Typography sx={{ color: 'text.secondary' }}>{row.surName}</Typography>,
+		},
+		{
+			flex: 0.5,
+			field: 'fatherName',
+			minWidth: 70,
+			headerName: t('FatherName'),
+			renderCell: ({ row }: CellType) => (
+				<Typography sx={{ color: 'text.secondary' }}>{row.fatherName}</Typography>
+			),
+		},
+		{
+			flex: 0.5,
+			field: 'passportNo',
+			minWidth: 70,
+			headerName: t('PassportNo'),
+			renderCell: ({ row }: CellType) => (
+				<Typography sx={{ color: 'text.secondary' }}>{row.passportNo}</Typography>
+			),
+		},
+		{
+			flex: 0.5,
+			field: 'telephoneNo',
+			minWidth: 70,
+			headerName: t('TelephoneNo'),
+			renderCell: ({ row }: CellType) => (
+				<Typography sx={{ color: 'text.secondary' }}>{row.telephoneNo}</Typography>
+			),
+		},
+		{
+			flex: 0.5,
+			field: 'email',
+			minWidth: 70,
+			headerName: t('Email'),
+			renderCell: ({ row }: CellType) => <Typography sx={{ color: 'text.secondary' }}>{row.email}</Typography>,
+		},
+		{
+			flex: 0.5,
+			field: 'birthday',
+			minWidth: 70,
+			headerName: t('Birthday'),
+			renderCell: ({ row }: CellType) => (
+				<Typography sx={{ color: 'text.secondary' }}>{new Date(row.birthday).toLocaleDateString()}</Typography>
 			),
 		},
 	];

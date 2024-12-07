@@ -16,7 +16,6 @@ interface FormData {
 	telephoneNo: string;
 	position: string;
 	email: string;
-	department: string;
 }
 
 const Filter = () => {
@@ -29,7 +28,6 @@ const Filter = () => {
 		telephoneNo: '',
 		position: '',
 		email: '',
-		department: '',
 	});
 
 	useEffect(() => {
@@ -39,7 +37,6 @@ const Filter = () => {
 			telephoneNo: '',
 			position: '',
 			email: '',
-			department: '',
 		});
 		dispatch(setFilter({ key: 'usersFilter', value: {} }));
 		queryClient.invalidateQueries({ queryKey: ['users'] });
@@ -61,14 +58,7 @@ const Filter = () => {
 	};
 
 	const isAllFieldsEmpty = (values: FormData) => {
-		return (
-			!values.name &&
-			!values.surname &&
-			!values.telephoneNo &&
-			!values.position &&
-			!values.email &&
-			!values.department
-		);
+		return !values.name && !values.surname && !values.telephoneNo && !values.position && !values.email;
 	};
 
 	return (
@@ -95,10 +85,6 @@ const Filter = () => {
 						<Box marginBottom={2} width="100%">
 							<InputLabel>{t('users:email')}</InputLabel>
 							<Field fullWidth size="small" name="email" type="text" component={TextField} />
-						</Box>
-						<Box marginBottom={2} width="100%">
-							<InputLabel>{t('users:department')}</InputLabel>
-							<Field fullWidth size="small" name="department" type="text" component={TextField} />
 						</Box>
 
 						<Button

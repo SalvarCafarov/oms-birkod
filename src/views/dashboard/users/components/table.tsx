@@ -38,6 +38,7 @@ export const Table = () => {
 			'telephoneNo',
 			'position',
 			'email',
+			'isActive',
 			'department',
 		]);
 	}, [filterDataRedux.usersFilter]);
@@ -100,26 +101,20 @@ export const Table = () => {
 			minWidth: 120,
 			valueGetter: (params) => params.row.position || '-',
 		},
-		{
-			field: 'userName',
-			headerName: t('users:userName'),
-			flex: 0.3,
-			minWidth: 120,
-			valueGetter: (params) => params.row.userName || '-',
-		},
-		{
-			field: 'department',
-			headerName: t('users:department'),
-			flex: 0.3,
-			minWidth: 120,
-			valueGetter: (params) => params.row.department || '-',
-		},
+
 		{
 			field: 'email',
 			headerName: t('users:email'),
 			flex: 0.3,
 			minWidth: 120,
 			valueGetter: (params) => params.row.email || '-',
+		},
+		{
+			field: 'isActive',
+			headerName: t('users:isActive'),
+			flex: 0.3,
+			minWidth: 120,
+			valueGetter: (params) => params.row.isActive || '-',
 		},
 	];
 
