@@ -5,14 +5,12 @@ import { createBrowserRouter, Navigate } from 'react-router-dom';
 import Home from 'views/dashboard/home';
 import RolesPage from 'views/dashboard/roles';
 import Room from 'views/dashboard/room';
+import Customer from 'views/dashboard/customer';
 import RoomExtra from 'views/dashboard/room-extra';
 import RoomPrice from 'views/dashboard/room-price';
 import RoomType from 'views/dashboard/room-type';
-
-import TravelAgency from 'views/dashboard/travel-agency';
-
 import SpecialDayPrice from 'views/dashboard/special-day-price';
-
+import TravelAgency from 'views/dashboard/travel-agency';
 import UsersPage from 'views/dashboard/users';
 import NoPermission from 'views/misc/no-permission';
 
@@ -108,6 +106,14 @@ export const router = createBrowserRouter([
 								element: (
 									<PermissionRoute permission="roomExtra.list">
 										<RoomExtra />
+									</PermissionRoute>
+								),
+							},
+							{
+								path: '/customer',
+								element: (
+									<PermissionRoute permission="customer.list">
+										<Customer />
 									</PermissionRoute>
 								),
 							},
