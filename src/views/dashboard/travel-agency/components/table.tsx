@@ -11,7 +11,7 @@ import { useState } from 'react';
 import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
 
-import { EditTravelAgency } from '../edit/edit-travel-agency-form';
+import { EditTravelAgencyForm } from '../edit/edit-travel-agency-form';
 import { TableHeader } from './table-header';
 
 interface CellType {
@@ -22,7 +22,8 @@ export const Table = () => {
 	const { t } = useTranslation();
 	const { confirm } = useConfirmation();
 	const [editOpen, setEditOpen] = useState<boolean>(false);
-	const [selectedTravelAgency, setSelectedTravelAgency] = useState<TravelAgencyResponseDto>();
+	const [selectedTravelAgency, setSelectedTravelAgency] = useState<TravelAgencyResponseDto | undefined>(undefined);
+
 	const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({
 		page: 0,
 		pageSize: 10,
@@ -55,6 +56,31 @@ export const Table = () => {
 			),
 		},
 		{
+			field: 'formNo',
+			headerName: t('formNo'),
+			minWidth: 150,
+			flex: 1,
+		},
+		{
+			flex: 0.5,
+			field: 'StartDate',
+			minWidth: 200,
+			headerName: t('Start Date'),
+			renderCell: ({ row }: CellType) => (
+				<Typography sx={{ color: 'text.secondary' }}>{new Date(row.startDate).toLocaleDateString()}</Typography>
+			),
+		},
+		{
+			flex: 0.5,
+			field: 'EndDate',
+			minWidth: 200,
+			headerName: t('End Date'),
+			renderCell: ({ row }: CellType) => (
+				<Typography sx={{ color: 'text.secondary' }}>{new Date(row.endDate).toLocaleDateString()}</Typography>
+			),
+		},
+
+		{
 			flex: 0.5,
 			minWidth: 240,
 			field: 'discountRate',
@@ -62,6 +88,13 @@ export const Table = () => {
 			renderCell: ({ row }: CellType) => (
 				<Typography sx={{ color: 'text.secondary' }}>{row.discountRate || '-'}</Typography>
 			),
+		},
+		{
+			field: 'isActive',
+			headerName: t('isActive'),
+			minWidth: 100,
+			flex: 0.5,
+			renderCell: ({ row }: CellType) => <Typography>{row.isActive ? t('active') : t('inactive')}</Typography>,
 		},
 		{
 			flex: 0.2,
@@ -122,9 +155,9 @@ export const Table = () => {
 						onPaginationModelChange={setPaginationModel}
 					/>
 					<Modal open={editOpen} title={t('edit')} onClose={handleEditDialogToggle}>
-						<EditTravelAgency
+						<EditTravelAgencyForm
 							travelAgencyProp={selectedTravelAgency}
-							handleDialogToggle={handleEditDialogToggle}
+							handleEditDialogToggle={handleEditDialogToggle}
 						/>
 					</Modal>
 				</>

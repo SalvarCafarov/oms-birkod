@@ -1,16 +1,16 @@
-import React from 'react';
 import { Autocomplete, Box, Button, Grid, InputLabel, TextField } from '@mui/material';
-import { useMutation, useQuery } from '@tanstack/react-query';
-import { Form, Formik, FormikHelpers } from 'formik';
 import { LocalizationProvider, MobileDateTimePicker } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { roomType, RoomTypeResponseDto } from 'api/services/room-type';
+import { specialDayPrice, SpecialDayPriceRequestDto } from 'api/services/special-day-price';
 import dayjs, { Dayjs } from 'dayjs';
+import { Form, Formik, FormikHelpers } from 'formik';
+import { queryClient } from 'main';
+import React from 'react';
 import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
 
-import { roomType, RoomTypeResponseDto } from 'api/services/room-type';
-import { specialDayPrice, SpecialDayPriceRequestDto } from 'api/services/special-day-price';
-import { queryClient } from 'main';
 import { validationSchema } from './validationSchema';
 
 interface Props {
@@ -112,7 +112,6 @@ export const AddSpecialDayPriceForm = ({ handleDialogToggle }: Props) => {
 								<LocalizationProvider dateAdapter={AdapterDayjs}>
 									<MobileDateTimePicker
 										value={values.startDate}
-										onChange={(value) => setFieldValue('startDate', value || dayjs())}
 										ampm={false}
 										slots={{
 											textField: (params) => (
@@ -124,6 +123,7 @@ export const AddSpecialDayPriceForm = ({ handleDialogToggle }: Props) => {
 												/>
 											),
 										}}
+										onChange={(value) => setFieldValue('startDate', value || dayjs())}
 									/>
 								</LocalizationProvider>
 							</Grid>
@@ -133,7 +133,6 @@ export const AddSpecialDayPriceForm = ({ handleDialogToggle }: Props) => {
 								<LocalizationProvider dateAdapter={AdapterDayjs}>
 									<MobileDateTimePicker
 										value={values.endDate}
-										onChange={(value) => setFieldValue('endDate', value || dayjs())}
 										ampm={false}
 										slots={{
 											textField: (params) => (
@@ -145,6 +144,7 @@ export const AddSpecialDayPriceForm = ({ handleDialogToggle }: Props) => {
 												/>
 											),
 										}}
+										onChange={(value) => setFieldValue('endDate', value || dayjs())}
 									/>
 								</LocalizationProvider>
 							</Grid>

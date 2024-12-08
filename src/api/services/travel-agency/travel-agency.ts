@@ -2,11 +2,11 @@ import { request } from 'api';
 import { GetListByDynamicResponseDto } from 'types';
 
 import { Filter, PaginationParams } from '../types';
-import { TravelAgencyRequestDto, TravelAgencyResponseDto } from './travel-agency.dto';
+import { TravelAgencyCreateRequestDto, TravelAgencyRequestDto, TravelAgencyResponseDto } from './travel-agency.dto';
 
 export const travelAgency = {
 	// Add Room Type
-	add: (body: TravelAgencyRequestDto) => request.post('/TravelAgency/Add', body),
+	add: (body: TravelAgencyCreateRequestDto) => request.post('/TravelAgency/Add', body),
 
 	// Update Room Type
 	update: (body: TravelAgencyResponseDto) => request.put('/TravelAgency/Update', body),

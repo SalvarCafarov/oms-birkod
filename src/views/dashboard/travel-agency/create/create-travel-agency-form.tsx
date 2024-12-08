@@ -1,9 +1,12 @@
-import { Box, Button, Grid, InputLabel } from '@mui/material';
-import { useMutation } from '@tanstack/react-query';
-import { travelAgency } from 'api/services/travel-agency';
-import { Field, Form, Formik, FormikHelpers } from 'formik';
-import { TextField } from 'formik-mui';
+import { Autocomplete, Box, Button, Grid, InputLabel, TextField } from '@mui/material';
+import { LocalizationProvider, MobileDateTimePicker } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { travelAgency, TravelAgencyCreateRequestDto } from 'api/services/travel-agency';
+import dayjs, { Dayjs } from 'dayjs';
+import { Form, Formik, FormikHelpers } from 'formik';
 import { queryClient } from 'main';
+import React from 'react';
 import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
 
@@ -15,6 +18,9 @@ interface Props {
 
 interface FormData {
 	agencyName: string;
+	formNo: string;
+	startDate: Dayjs;
+	endDate: Dayjs;
 	discountRate: number;
 }
 
@@ -25,66 +31,165 @@ export const AddTravelAgencyForm = ({ handleDialogToggle }: Props) => {
 		mutationFn: travelAgency.add,
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: [travelAgency.queryKey] });
+			toast.success(t('successfullyCreated'));
+			handleDialogToggle();
 		},
 	});
 
 	const handleSubmit = (formData: FormData, { setSubmitting }: FormikHelpers<FormData>) => {
-		addTravelAgency(formData, {
-			onSuccess: () => {
-				toast.success(t('successfullyCreated'));
-				handleDialogToggle();
-			},
-			onSettled: () => {
-				setSubmitting(false);
-			},
-		});
+		const payload: TravelAgencyCreateRequestDto = {
+			agencyName: formData.agencyName,
+			formNo: formData.formNo,
+			startDate: dayjs(formData.startDate).toDate(),
+			endDate: dayjs(formData.endDate).toDate(),
+			discountRate: formData.discountRate,
+		};
+
+		addTravelAgency(payload, { onSettled: () => setSubmitting(false) });
 	};
 
 	const initialValues: FormData = {
 		agencyName: '',
+		formNo: '',
+		startDate: dayjs(),
+		endDate: dayjs(),
 		discountRate: 0,
 	};
 
-	const translatedValidationSchema = validationSchema(t);
-
 	return (
-		<Formik initialValues={initialValues} validationSchema={translatedValidationSchema} onSubmit={handleSubmit}>
-			{() => {
-				return (
-					<Form>
+		<Formik initialValues={initialValues} validationSchema={validationSchema(t)} onSubmit={handleSubmit}>
+			{({ setFieldValue, errors, touched, values }) => (
+				<Form>
+					<Box
+						sx={{
+							mt: 4,
+							mx: 'auto',
+							width: '100%',
+							maxWidth: 360,
+							display: 'flex',
+							alignItems: 'center',
+							flexDirection: 'column',
+						}}
+					>
+						<Grid container rowSpacing={4}>
+							{/* Agency Name */}
+							<Grid item xs={12}>
+								<InputLabel required>{t('agencyName')}</InputLabel>
+								<TextField
+									name="agencyName"
+									size="small"
+									variant="outlined"
+									value={values.agencyName}
+									error={touched.agencyName && Boolean(errors.agencyName)}
+									helperText={touched.agencyName && errors.agencyName}
+									onChange={(event) => setFieldValue('agencyName', event.target.value)}
+								/>
+							</Grid>
+
+							{/* Request Number */}
+							<Grid item xs={12}>
+								<InputLabel>{t('formNo')}</InputLabel>
+								<TextField
+									name="formNo"
+									size="small"
+									variant="outlined"
+									value={values.formNo}
+									error={touched.formNo && Boolean(errors.formNo)}
+									helperText={touched.formNo && errors.formNo}
+									onChange={(event) => setFieldValue('formNo', event.target.value)}
+								/>
+							</Grid>
+
+							{/* Start Date */}
+							<Grid item xs={12}>
+								<InputLabel required>{t('startDate')}</InputLabel>
+								<LocalizationProvider dateAdapter={AdapterDayjs}>
+									<MobileDateTimePicker
+										value={values.startDate}
+										ampm={false}
+										slots={{
+											textField: (params) => (
+												<TextField
+													{...params}
+													fullWidth
+													error={touched.startDate && Boolean(errors.startDate)}
+													helperText={touched.startDate && errors.startDate}
+												/>
+											),
+										}}
+										onChange={(value) => setFieldValue('startDate', value || dayjs().toDate())}
+									/>
+								</LocalizationProvider>
+							</Grid>
+
+							{/* End Date */}
+							<Grid item xs={12}>
+								<InputLabel required>{t('endDate')}</InputLabel>
+								<LocalizationProvider dateAdapter={AdapterDayjs}>
+									<MobileDateTimePicker
+										value={values.endDate}
+										ampm={false}
+										slots={{
+											textField: (params) => (
+												<TextField
+													{...params}
+													fullWidth
+													error={touched.endDate && Boolean(errors.endDate)}
+													helperText={touched.endDate && errors.endDate}
+												/>
+											),
+										}}
+										onChange={(value) => setFieldValue('endDate', value || dayjs().toDate())}
+									/>
+								</LocalizationProvider>
+							</Grid>
+
+							{/* Discount Rate */}
+							<Grid item xs={12}>
+								<InputLabel required>{t('discountRate')}</InputLabel>
+								<TextField
+									fullWidth
+									name="discountRate"
+									size="small"
+									variant="outlined"
+									value={values.discountRate}
+									error={touched.discountRate && Boolean(errors.discountRate)}
+									helperText={touched.discountRate && errors.discountRate}
+									onChange={(event) => setFieldValue('discountRate', Number(event.target.value) || 0)}
+								/>
+							</Grid>
+
+							{/* Active Status */}
+							{/* <Grid item xs={12}>
+								<InputLabel required>{t('isActive')}</InputLabel>
+								<TextField
+									fullWidth
+									name="isActive"
+									value={values.isActive}
+									error={touched.isActive && Boolean(errors.isActive)}
+									helperText={touched.isActive && errors.isActive}
+									onChange={(event) => setFieldValue('isActive', event.target.value)}
+								/>
+							</Grid> */}
+						</Grid>
 						<Box
 							sx={{
-								mt: 4,
-								mx: 'auto',
-								width: '100%',
-								maxWidth: 360,
 								display: 'flex',
-								alignItems: 'center',
-								flexDirection: 'column',
+								justifyContent: 'space-between',
+								mt: 2,
+								width: '100%',
 							}}
 						>
-							<Grid container rowSpacing={4}>
-								<Grid item xs={12}>
-									<InputLabel required>{t('agencyName')}</InputLabel>
-									<Field name="agencyName" size="small" component={TextField} />
-								</Grid>
-								<Grid item xs={12}>
-									<InputLabel required>{t('discountRate')}</InputLabel>
-									<Field name="discountRate" size="small" component={TextField} />
-								</Grid>
-							</Grid>
-							<Box className="demo-space-x" sx={{ '& > :last-child': { mr: '0 !important' } }}>
-								<Button type="submit" variant="contained">
-									{t('create')}
-								</Button>
-								<Button type="reset" variant="tonal" color="secondary" onClick={handleDialogToggle}>
-									{t('discard')}
-								</Button>
-							</Box>
+							<Button type="submit" variant="contained">
+								{t('create')}
+							</Button>
+							<Button type="button" variant="outlined" color="secondary" onClick={handleDialogToggle}>
+								{t('discard')}
+							</Button>
 						</Box>
-					</Form>
-				);
-			}}
+					</Box>
+				</Form>
+			)}
 		</Formik>
 	);
 };
