@@ -52,6 +52,11 @@ const menuItems = (): VerticalNavItemsType => {
 			icon: 'tabler:home-plus',
 			path: '/customer',
 		},
+		{
+			title: 'Booking',
+			icon: 'tabler:home-plus',
+			path: '/booking',
+		},
 	];
 };
 

@@ -2,6 +2,7 @@ import { useAppSelector } from 'app/hooks';
 import { selectPermissionsData } from 'context/permissions/permissionsSlice';
 import { lazy } from 'react';
 import { createBrowserRouter, Navigate } from 'react-router-dom';
+import { Booking } from 'views/dashboard/booking/special-day-price';
 import Home from 'views/dashboard/home';
 import RolesPage from 'views/dashboard/roles';
 import Room from 'views/dashboard/room';
@@ -130,6 +131,14 @@ export const router = createBrowserRouter([
 								element: (
 									<PermissionRoute permission="specialDayPrice.list">
 										<SpecialDayPrice />
+									</PermissionRoute>
+								),
+							},
+							{
+								path: '/booking',
+								element: (
+									<PermissionRoute permission="booking.list">
+										<Booking />
 									</PermissionRoute>
 								),
 							},

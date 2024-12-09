@@ -31,8 +31,8 @@ const CustomMultiSelect = ({
 			? [values]
 			: []
 		: Array.isArray(values)
-		  ? values
-		  : [];
+			? values
+			: [];
 
 	const [selectedOptions, setSelectedOptions] = useState<string[]>(initialSelectedOptions);
 	const [isOpen, setIsOpen] = useState<boolean>(false);
@@ -51,8 +51,8 @@ const CustomMultiSelect = ({
 				? [values]
 				: []
 			: Array.isArray(values)
-			  ? values
-			  : [];
+				? values
+				: [];
 		setSelectedOptions(updatedOptions);
 	}, [values, singleSelect]);
 
