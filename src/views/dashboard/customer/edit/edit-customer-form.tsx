@@ -17,7 +17,7 @@ interface Props {
 
 interface FormData {
 	name: string;
-	surName: string;
+	surname: string;
 	fatherName: string;
 	passportNo: string;
 	telephoneNo: string;
@@ -39,9 +39,9 @@ export const EditCustomerForm = ({ customerProp, handleEditDialogToggle }: Props
 
 	const initialValues: FormData = {
 		name: customerProp?.name || '', // roomTypeName'ı kullanıyoruz
-		surName: customerProp?.surName || '',
+		surname: customerProp?.surname || '',
 		fatherName: customerProp?.fatherName || '',
-		passportNo: customerProp?.fatherName || '',
+		passportNo: customerProp?.passportNo || '',
 		telephoneNo: customerProp?.telephoneNo || '',
 		email: customerProp?.email || '',
 		birthday: customerProp?.birthday ? dayjs(customerProp.birthday) : dayjs(),
@@ -52,13 +52,13 @@ export const EditCustomerForm = ({ customerProp, handleEditDialogToggle }: Props
 
 		const payload = {
 			key: customerProp!.key, // customerProp'tan gelen key
-			birthday: dayjs(formData.birthday).toDate(), // birthday'yi Date nesnesine çeviriyoruz
 			name: formData.name || '',
-			surName: formData.surName || '',
+			surname: formData.surname || '',
 			fatherName: formData.fatherName || '',
 			passportNo: formData.passportNo || '',
 			telephoneNo: formData.telephoneNo || '',
 			email: formData.email || '',
+			birthday: dayjs(formData.birthday).toDate(),
 		};
 
 		updateCustomer(payload);
@@ -86,29 +86,33 @@ export const EditCustomerForm = ({ customerProp, handleEditDialogToggle }: Props
 					>
 						<Grid container rowSpacing={4}>
 							<Grid item xs={12}>
-								<InputLabel required>{t('surName')}</InputLabel>
+								<InputLabel required>{t('name')}</InputLabel>
 								<Field
-									name="surName"
+									name="name"
 									size="small"
 									component={TextField}
-									onChange={(event) => setFieldValue('surName', event.target.value || '')}
+									value={values.name}
+									onChange={(event) => setFieldValue('name', event.target.value || '')}
 								/>
 							</Grid>
+							<Grid item xs={12}>
+								<InputLabel required>{t('surname')}</InputLabel>
+								<Field
+									name="surname"
+									size="small"
+									component={TextField}
+									value={values.surname}
+									onChange={(event) => setFieldValue('surname', event.target.value || '')}
+								/>
+							</Grid>
+
 							<Grid item xs={12}>
 								<InputLabel required>{t('fatherName')}</InputLabel>
 								<Field
 									name="fatherName"
 									size="small"
 									component={TextField}
-									onChange={(event) => setFieldValue('fatherName', event.target.value || '')}
-								/>
-							</Grid>
-							<Grid item xs={12}>
-								<InputLabel required>{t('fatherName')}</InputLabel>
-								<Field
-									name="fatherName"
-									size="small"
-									component={TextField}
+									value={values.fatherName}
 									onChange={(event) => setFieldValue('fatherName', event.target.value || '')}
 								/>
 							</Grid>
@@ -118,6 +122,7 @@ export const EditCustomerForm = ({ customerProp, handleEditDialogToggle }: Props
 									name="passportNo"
 									size="small"
 									component={TextField}
+									value={values.passportNo}
 									onChange={(event) => setFieldValue('passportNo', event.target.value || '')}
 								/>
 							</Grid>
@@ -127,6 +132,7 @@ export const EditCustomerForm = ({ customerProp, handleEditDialogToggle }: Props
 									name="telephoneNo"
 									size="small"
 									component={TextField}
+									value={values.telephoneNo}
 									onChange={(event) => setFieldValue('telephoneNo', event.target.value || '')}
 								/>
 							</Grid>
@@ -136,6 +142,7 @@ export const EditCustomerForm = ({ customerProp, handleEditDialogToggle }: Props
 									name="email"
 									size="small"
 									component={TextField}
+									value={values.email}
 									onChange={(event) => setFieldValue('email', event.target.value || '')}
 								/>
 							</Grid>
@@ -148,15 +155,6 @@ export const EditCustomerForm = ({ customerProp, handleEditDialogToggle }: Props
 									variant="outlined"
 									value={values.birthday.format('YYYY-MM-DD')}
 									onChange={(event) => setFieldValue('birthday', dayjs(event.target.value))}
-								/>
-							</Grid>
-							<Grid item xs={12}>
-								<InputLabel required>{t('name')}</InputLabel>
-								<Field
-									name="name"
-									size="small"
-									component={TextField}
-									onChange={(event) => setFieldValue('name', Number(event.target.value) || 0)}
 								/>
 							</Grid>
 						</Grid>

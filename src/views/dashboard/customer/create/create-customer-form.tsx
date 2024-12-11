@@ -18,7 +18,7 @@ interface Props {
 
 interface FormData {
 	name: string;
-	surName: string;
+	surname: string;
 	fatherName: string;
 	passportNo: string;
 	telephoneNo: string;
@@ -44,7 +44,7 @@ export const AddCustomerForm = ({ handleDialogToggle }: Props) => {
 	const handleSubmit = (formData: FormData, { setSubmitting }: FormikHelpers<FormData>) => {
 		const payload: CustomerRequestDto = {
 			name: formData.name,
-			surName: formData.surName,
+			surname: formData.surname,
 			fatherName: formData.fatherName,
 			passportNo: formData.passportNo,
 			telephoneNo: formData.telephoneNo,
@@ -59,7 +59,7 @@ export const AddCustomerForm = ({ handleDialogToggle }: Props) => {
 
 	const initialValues: FormData = {
 		name: '',
-		surName: '',
+		surname: '',
 		fatherName: '',
 		passportNo: '',
 		telephoneNo: '',
@@ -97,16 +97,16 @@ export const AddCustomerForm = ({ handleDialogToggle }: Props) => {
 								/>
 							</Grid>
 							<Grid item xs={12}>
-								<InputLabel required>{t('surName')}</InputLabel>
+								<InputLabel required>{t('surname')}</InputLabel>
 								<TextField
 									fullWidth
-									name="surName"
+									name="surname"
 									size="small"
 									variant="outlined"
-									value={values.surName}
-									error={touched.surName && Boolean(errors.surName)}
-									helperText={touched.surName && errors.surName}
-									onChange={(event) => setFieldValue('surName', event.target.value)}
+									value={values.surname}
+									error={touched.surname && Boolean(errors.surname)}
+									helperText={touched.surname && errors.surname}
+									onChange={(event) => setFieldValue('surname', event.target.value)}
 								/>
 							</Grid>
 							<Grid item xs={12}>

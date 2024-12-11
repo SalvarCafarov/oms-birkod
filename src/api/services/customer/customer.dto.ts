@@ -1,6 +1,6 @@
 export interface CustomerRequestDto {
 	name: string;
-	surName: string;
+	surname: string;
 	fatherName: string;
 	telephoneNo: string;
 	passportNo: string;
@@ -10,7 +10,7 @@ export interface CustomerRequestDto {
 
 export interface CustomerResponseDto {
 	name: string;
-	surName: string;
+	surname: string;
 	fatherName: string;
 	telephoneNo: string;
 	passportNo: string;

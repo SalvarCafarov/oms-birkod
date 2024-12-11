@@ -88,10 +88,10 @@ export const Table = () => {
 		},
 		{
 			flex: 0.5,
-			field: 'surName',
+			field: 'surname',
 			minWidth: 70,
 			headerName: t('SurName'),
-			renderCell: ({ row }: CellType) => <Typography sx={{ color: 'text.secondary' }}>{row.surName}</Typography>,
+			renderCell: ({ row }: CellType) => <Typography sx={{ color: 'text.secondary' }}>{row.surname}</Typography>,
 		},
 		{
 			flex: 0.5,

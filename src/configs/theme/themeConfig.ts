@@ -30,9 +30,9 @@ type ThemeConfig = {
 
 const themeConfig: ThemeConfig = {
 	// ** Layout Configs
-	templateName: import.meta.env.VITE_PROJECT_NAME /* App Name */,
+	templateName: import.meta.env.VITE_PROJECT_NAME || 'My Project' /* App Name */,
 	layout: 'vertical' /* vertical | horizontal */,
-	mode: 'light' as Mode /* light | dark | semi-dark /*! Note: semi-dark value will only work for Vertical Layout */,
+	mode: 'light' as Mode /* light | dark | semi-dark */,
 	skin: 'default' /* default | bordered */,
 	contentWidth: 'boxed' /* full | boxed */,
 	footer: 'static' /* fixed | static | hidden */,
@@ -44,16 +44,16 @@ const themeConfig: ThemeConfig = {
 	navHidden: false /* true | false */,
 	menuTextTruncate: true /* true | false */,
 	navSubItemIcon: 'tabler:circle' /* Icon */,
-	verticalNavToggleType: 'accordion' /* accordion | collapse /*! Note: This is for Vertical navigation menu only */,
-	navCollapsed: false /* true | false /*! Note: This is for Vertical navigation menu only */,
-	navigationSize: 260 /* Number in px(Pixels) /*! Note: This is for Vertical navigation menu only */,
-	collapsedNavigationSize: 82 /* Number in px(Pixels) /*! Note: This is for Vertical navigation menu only */,
+	verticalNavToggleType: 'accordion' /* accordion | collapse */,
+	navCollapsed: false /* true | false */,
+	navigationSize: 260 /* Number in px */,
+	collapsedNavigationSize: 82 /* Number in px */,
 	afterVerticalNavMenuContentPosition: 'fixed' /* fixed | static */,
 	beforeVerticalNavMenuContentPosition: 'fixed' /* fixed | static */,
 	horizontalMenuAnimation: true /* true | false */,
 
 	// ** AppBar Configs
-	appBar: 'fixed' /* fixed | static | hidden /*! Note: hidden value will only work for Vertical Layout */,
+	appBar: 'fixed' /* fixed | static | hidden */,
 	appBarBlur: true /* true | false */,
 
 	// ** Other Configs
