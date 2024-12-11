@@ -33,8 +33,8 @@ const CustomMultiSelect2 = ({
 				: []
 			: []
 		: Array.isArray(values)
-		  ? values
-		  : [];
+			? values
+			: [];
 
 	const [selectedOptions, setSelectedOptions] =
 		useState<{ value: string; imgUrl?: string }[]>(initialSelectedOptions);
@@ -54,8 +54,8 @@ const CustomMultiSelect2 = ({
 				? [values[0]]
 				: []
 			: Array.isArray(values)
-			  ? values
-			  : [];
+				? values
+				: [];
 		setSelectedOptions(updatedOptions);
 	}, [values, singleSelect]);
 
