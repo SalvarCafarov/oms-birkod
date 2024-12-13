@@ -1,4 +1,4 @@
-import { hexToRGBA } from 'utils/hex-to-rgba';
+import { extractRGB } from 'utils/extract-rgb';
 
 import { OwnerStateThemeType } from './';
 
@@ -44,12 +44,12 @@ const Alert = () => {
 				}),
 				standard: ({ theme }: OwnerStateThemeType) => ({
 					'& .MuiAlert-icon': {
-						backgroundColor: theme.palette.background.paper,
+						backgroundColor: `rgba(${extractRGB(theme.palette.background.paper)}, 0.16)`,
 					},
 				}),
 				standardSuccess: ({ theme }: OwnerStateThemeType) => ({
 					color: theme.palette.success.main,
-					backgroundColor: hexToRGBA(theme.palette.success.main, 0.16),
+					backgroundColor: `rgba(${extractRGB(theme.palette.success.main)}, 0.16)`,
 					'& .MuiAlertTitle-root': {
 						color: theme.palette.success.main,
 					},
@@ -59,7 +59,7 @@ const Alert = () => {
 				}),
 				standardInfo: ({ theme }: OwnerStateThemeType) => ({
 					color: theme.palette.info.main,
-					backgroundColor: hexToRGBA(theme.palette.info.main, 0.16),
+					backgroundColor: `rgba(${extractRGB(theme.palette.info.main)}, 0.16)`,
 					'& .MuiAlertTitle-root': {
 						color: theme.palette.info.main,
 					},
@@ -69,7 +69,7 @@ const Alert = () => {
 				}),
 				standardWarning: ({ theme }: OwnerStateThemeType) => ({
 					color: theme.palette.warning.main,
-					backgroundColor: hexToRGBA(theme.palette.warning.main, 0.16),
+					backgroundColor: `rgba(${extractRGB(theme.palette.warning.main)}, 0.16)`,
 					'& .MuiAlertTitle-root': {
 						color: theme.palette.warning.main,
 					},
@@ -79,7 +79,7 @@ const Alert = () => {
 				}),
 				standardError: ({ theme }: OwnerStateThemeType) => ({
 					color: theme.palette.error.main,
-					backgroundColor: hexToRGBA(theme.palette.error.main, 0.16),
+					backgroundColor: `rgba(${extractRGB(theme.palette.error.main)}, 0.16)`,
 					'& .MuiAlertTitle-root': {
 						color: theme.palette.error.main,
 					},

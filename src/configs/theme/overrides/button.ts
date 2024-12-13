@@ -108,7 +108,9 @@ const Button = () => {
 					style: ({ theme }: OwnerStateThemeType) => ({
 						color: theme.palette.primary.main,
 						backgroundColor: hexToRGBA(theme.palette.primary.main, 0.16),
-						'&:hover, &:active': { backgroundColor: hexToRGBA(theme.palette.primary.main, 0.24) },
+						'&:hover, &:active': {
+							backgroundColor: hexToRGBA(theme.palette.primary.main, 0.24),
+						},
 					}),
 				},
 				{
@@ -116,7 +118,9 @@ const Button = () => {
 					style: ({ theme }: OwnerStateThemeType) => ({
 						color: theme.palette.secondary.main,
 						backgroundColor: hexToRGBA(theme.palette.secondary.main, 0.16),
-						'&:hover, &:active': { backgroundColor: hexToRGBA(theme.palette.secondary.main, 0.24) },
+						'&:hover, &:active': {
+							backgroundColor: hexToRGBA(theme.palette.secondary.main, 0.24),
+						},
 					}),
 				},
 				{
@@ -132,7 +136,9 @@ const Button = () => {
 					style: ({ theme }: OwnerStateThemeType) => ({
 						color: theme.palette.warning.main,
 						backgroundColor: hexToRGBA(theme.palette.warning.main, 0.16),
-						'&:hover, &:active': { backgroundColor: hexToRGBA(theme.palette.warning.main, 0.24) },
+						'&:hover, &:active': {
+							backgroundColor: hexToRGBA(theme.palette.warning.main, 0.24),
+						},
 					}),
 				},
 				{
@@ -148,7 +154,9 @@ const Button = () => {
 					style: ({ theme }: OwnerStateThemeType) => ({
 						color: theme.palette.success.main,
 						backgroundColor: hexToRGBA(theme.palette.success.main, 0.16),
-						'&:hover, &:active': { backgroundColor: hexToRGBA(theme.palette.success.main, 0.24) },
+						'&:hover, &:active': {
+							backgroundColor: hexToRGBA(theme.palette.success.main, 0.24),
+						},
 					}),
 				},
 			],

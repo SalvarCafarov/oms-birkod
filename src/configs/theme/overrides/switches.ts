@@ -1,3 +1,5 @@
+import { extractRGB } from 'utils/extract-rgb';
+
 import { OwnerStateThemeType } from './';
 
 const Switch = () => {
@@ -53,27 +55,27 @@ const Switch = () => {
 							opacity: 1,
 							boxShadow: theme.shadows[2],
 							borderColor: theme.palette.primary.main,
-							backgroundColor: theme.palette.primary.main,
+							backgroundColor: `rgba(${extractRGB(theme.palette.primary.main)}, 0.99)`,
 						},
 						'&.MuiSwitch-colorSecondary + .MuiSwitch-track': {
 							borderColor: theme.palette.secondary.main,
-							backgroundColor: theme.palette.secondary.main,
+							backgroundColor: `rgba(${extractRGB(theme.palette.secondary.main)}, 0.99)`,
 						},
 						'&.MuiSwitch-colorSuccess + .MuiSwitch-track': {
 							borderColor: theme.palette.success.main,
-							backgroundColor: theme.palette.success.main,
+							backgroundColor: `rgba(${extractRGB(theme.palette.success.main)}, 0.99)`,
 						},
 						'&.MuiSwitch-colorError + .MuiSwitch-track': {
 							borderColor: theme.palette.error.main,
-							backgroundColor: theme.palette.error.main,
+							backgroundColor: `rgba(${extractRGB(theme.palette.error.main)}, 0.99)`,
 						},
 						'&.MuiSwitch-colorWarning + .MuiSwitch-track': {
 							borderColor: theme.palette.warning.main,
-							backgroundColor: theme.palette.warning.main,
+							backgroundColor: `rgba(${extractRGB(theme.palette.warning.main)}, 0.99)`,
 						},
 						'&.MuiSwitch-colorInfo + .MuiSwitch-track': {
 							borderColor: theme.palette.info.main,
-							backgroundColor: theme.palette.info.main,
+							backgroundColor: `rgba(${extractRGB(theme.palette.info.main)}, 0.99)`,
 						},
 					},
 					'&.Mui-checked + .MuiSwitch-track': {

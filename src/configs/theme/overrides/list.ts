@@ -1,3 +1,4 @@
+import { extractRGB } from 'utils/extract-rgb'; // extractRGB fonksiyonu dahil edildi
 import { hexToRGBA } from 'utils/hex-to-rgba';
 
 import { OwnerStateThemeType } from './';
@@ -10,7 +11,8 @@ const List = () => {
 					paddingLeft: theme.spacing(5),
 					paddingRight: theme.spacing(5),
 					'&:hover': {
-						backgroundColor: hexToRGBA(theme.palette.primary.main, 0.08),
+						// hexToRGBA öncesinde extractRGB uygulandı
+						backgroundColor: hexToRGBA(extractRGB(theme.palette.primary.main), 0.08),
 						'& .MuiListItemIcon-root, & .MuiListItemText-primary, & .MuiListItemText-secondary, & .MuiListItemSecondaryAction-root .MuiIconButton-root':
 							{
 								color: theme.palette.primary.main,

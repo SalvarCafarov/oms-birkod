@@ -1,4 +1,4 @@
-import { hexToRGBA } from 'utils/hex-to-rgba';
+import { extractRGB } from 'utils/extract-rgb';
 
 import { Skin } from '../types';
 import { OwnerStateThemeType } from './';
@@ -27,7 +27,7 @@ const Autocomplete = (skin: Skin) => {
 							'& .MuiAutocomplete-option': {
 								'&.Mui-focused': {
 									color: theme.palette.primary.main,
-									backgroundColor: hexToRGBA(theme.palette.primary.main, 0.08),
+									backgroundColor: `rgba(${extractRGB(theme.palette.primary.main)}, 0.08)`,
 									'& .MuiTypography-root, & svg': {
 										color: 'inherit',
 									},

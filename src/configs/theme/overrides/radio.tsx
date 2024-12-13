@@ -1,4 +1,5 @@
 import { useTheme } from '@mui/material/styles';
+import { extractRGB } from 'utils/extract-rgb'; // extractRGB fonksiyonu dahil edildi
 
 import { OwnerStateThemeType } from './';
 
@@ -45,14 +46,16 @@ const Radio = () => {
 				icon: <Icon />,
 				checkedIcon: <CheckedIcon />,
 			},
-
 			styleOverrides: {
 				root: ({ theme }: OwnerStateThemeType) => ({
 					'&.Mui-checked': {
 						'& svg': {
 							fill: theme.palette.primary.main,
+							// extractRGB kullanılarak olası 'rgba(rgba(...))' hatası önlenir
 							filter: `drop-shadow(0 2px 3px rgba(${
-								theme.palette.mode === 'light' ? theme.palette.customColors.main : '12, 16, 27'
+								theme.palette.mode === 'light'
+									? extractRGB(theme.palette.customColors.main)
+									: '12, 16, 27'
 							}, 0.16))`,
 						},
 						'&.Mui-disabled svg': {
@@ -71,6 +74,7 @@ const Radio = () => {
 					'&.Mui-disabled:not(.Mui-checked) svg': {
 						opacity: 0.5,
 					},
+					// Renk işlemleri direkt 'fill' üzerinden yapılır
 					'&.Mui-checked.MuiRadio-colorSecondary svg path:first-of-type': {
 						fill: theme.palette.secondary.main,
 					},

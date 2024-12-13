@@ -1,3 +1,5 @@
+import { extractRGB } from 'utils/extract-rgb'; // `extractRGB` eklendi
+
 import { Skin } from '../types';
 import { OwnerStateThemeType } from './';
 
@@ -6,7 +8,8 @@ const Card = (skin: Skin) => {
 		MuiCard: {
 			styleOverrides: {
 				root: ({ theme }: OwnerStateThemeType) => ({
-					...(skin === 'bordered' && { border: `1px solid ${theme.palette.divider}` }),
+					// Eğer renk RGBA gibi bir formattaysa burada `extractRGB` uygulanır
+					...(skin === 'bordered' && { border: `1px solid ${extractRGB(theme.palette.divider)}` }),
 					'& .card-more-options': {
 						marginTop: theme.spacing(-1),
 						marginRight: theme.spacing(-3),

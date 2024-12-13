@@ -1,4 +1,5 @@
 import { useTheme } from '@mui/material/styles';
+import { extractRGB } from 'utils/extract-rgb'; // extractRGB fonksiyonunu ekledik
 
 import { OwnerStateThemeType } from './';
 
@@ -70,8 +71,11 @@ const Checkbox = () => {
 				root: ({ theme }: OwnerStateThemeType) => ({
 					'&.Mui-checked': {
 						'& svg': {
+							// extractRGB kullanıldı
 							filter: `drop-shadow(0 2px 3px rgba(${
-								theme.palette.mode === 'light' ? theme.palette.customColors.main : '12, 16, 27'
+								theme.palette.mode === 'light'
+									? extractRGB(theme.palette.customColors.main)
+									: '12, 16, 27'
 							}, 0.16))`,
 						},
 						'&.Mui-disabled svg': {

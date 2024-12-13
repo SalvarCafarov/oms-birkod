@@ -1,3 +1,4 @@
+import { extractRGB } from 'utils/extract-rgb'; // extractRGB fonksiyonu dahil edildi
 import { hexToRGBA } from 'utils/hex-to-rgba';
 
 import { OwnerStateThemeType } from './';
@@ -15,24 +16,24 @@ const Slider = () => {
 					},
 					'&.MuiSlider-colorPrimary': {
 						'& .MuiSlider-thumb.Mui-active': {
-							boxShadow: `0 0 0 10px ${hexToRGBA(theme.palette.primary.main, 0.16)}`,
+							boxShadow: `0 0 0 10px ${hexToRGBA(extractRGB(theme.palette.primary.main), 0.16)}`,
 						},
 						'& .MuiSlider-thumbSizeSmall:hover, &.MuiSlider-sizeSmall .MuiSlider-thumb.Mui-focusVisible': {
-							boxShadow: `0 0 0 6px ${hexToRGBA(theme.palette.primary.main, 0.16)}`,
+							boxShadow: `0 0 0 6px ${hexToRGBA(extractRGB(theme.palette.primary.main), 0.16)}`,
 						},
 						'& .MuiSlider-thumbSizeSmall.Mui-active': {
-							boxShadow: `0 0 0 8px ${hexToRGBA(theme.palette.primary.main, 0.16)} !important`,
+							boxShadow: `0 0 0 8px ${hexToRGBA(extractRGB(theme.palette.primary.main), 0.16)} !important`,
 						},
 					},
 					'&.MuiSlider-colorSecondary': {
 						'& .MuiSlider-thumb.Mui-active': {
-							boxShadow: `0 0 0 10px ${hexToRGBA(theme.palette.secondary.main, 0.16)}`,
+							boxShadow: `0 0 0 10px ${hexToRGBA(extractRGB(theme.palette.secondary.main), 0.16)}`,
 						},
 						'& .MuiSlider-thumbSizeSmall:hover, &.MuiSlider-sizeSmall .MuiSlider-thumb.Mui-focusVisible': {
-							boxShadow: `0 0 0 6px ${hexToRGBA(theme.palette.secondary.main, 0.16)}`,
+							boxShadow: `0 0 0 6px ${hexToRGBA(extractRGB(theme.palette.secondary.main), 0.16)}`,
 						},
 						'& .MuiSlider-thumbSizeSmall.Mui-active': {
-							boxShadow: `0 0 0 8px ${hexToRGBA(theme.palette.secondary.main, 0.16)} !important`,
+							boxShadow: `0 0 0 8px ${hexToRGBA(extractRGB(theme.palette.secondary.main), 0.16)} !important`,
 						},
 					},
 				}),
@@ -101,8 +102,8 @@ const Slider = () => {
 					padding: theme.spacing(1, 2),
 					backgroundColor:
 						theme.palette.mode === 'light'
-							? `rgba(${theme.palette.customColors.main}, 0.9)`
-							: hexToRGBA(theme.palette.customColors.trackBg, 0.9),
+							? `rgba(${extractRGB(theme.palette.customColors.main)}, 0.9)` // extractRGB eklendi
+							: hexToRGBA(extractRGB(theme.palette.customColors.trackBg), 0.9), // extractRGB eklendi
 					'&:before': {
 						display: 'none',
 					},

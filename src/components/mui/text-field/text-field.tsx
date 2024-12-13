@@ -1,6 +1,7 @@
 import { styled } from '@mui/material/styles';
 import TextField, { TextFieldProps } from '@mui/material/TextField';
 import { forwardRef } from 'react';
+import { extractRGB } from 'utils/extract-rgb';
 
 const TextFieldStyled = styled(TextField)<TextFieldProps>(({ theme }) => ({
 	alignItems: 'flex-start',
@@ -15,12 +16,12 @@ const TextFieldStyled = styled(TextField)<TextFieldProps>(({ theme }) => ({
 	'& .MuiInputBase-root': {
 		borderRadius: 8,
 		backgroundColor: 'transparent !important',
-		border: `1px solid rgba(${theme.palette.customColors.main}, 0.2)`,
+		border: `1px solid rgba(${extractRGB(theme.palette.customColors.main)}, 0.23)`,
 		transition: theme.transitions.create(['border-color', 'box-shadow'], {
 			duration: theme.transitions.duration.shorter,
 		}),
 		'&:not(.Mui-focused):not(.Mui-disabled):not(.Mui-error):hover': {
-			borderColor: `rgba(${theme.palette.customColors.main}, 0.28)`,
+			borderColor: `rgba(${extractRGB(theme.palette.customColors.main)}, 0.28)`,
 		},
 		'&:before, &:after': {
 			display: 'none',
@@ -78,7 +79,6 @@ const TextFieldStyled = styled(TextField)<TextFieldProps>(({ theme }) => ({
 				duration: theme.transitions.duration.shorter,
 			}),
 		},
-
 		'&.MuiInputBase-inputAdornedStart:not(.MuiAutocomplete-input)': {
 			paddingLeft: 0,
 		},
@@ -95,7 +95,6 @@ const TextFieldStyled = styled(TextField)<TextFieldProps>(({ theme }) => ({
 			color: theme.palette.error.main,
 		},
 	},
-
 	'& .MuiSelect-select:focus, & .MuiNativeSelect-select:focus': {
 		backgroundColor: 'transparent',
 	},
@@ -129,7 +128,6 @@ const TextFieldStyled = styled(TextField)<TextFieldProps>(({ theme }) => ({
 			},
 		},
 	},
-
 	'& .MuiInputBase-multiline': {
 		padding: '15.25px 13px',
 		'&.MuiInputBase-sizeSmall': {
@@ -139,7 +137,6 @@ const TextFieldStyled = styled(TextField)<TextFieldProps>(({ theme }) => ({
 			overflowX: 'hidden',
 		},
 	},
-
 	'& + .react-datepicker__close-icon': {
 		top: 11,
 		'&:after': {
@@ -161,5 +158,4 @@ export const CustomTextField = forwardRef((props: TextFieldProps, ref) => {
 		/>
 	);
 });
-
 CustomTextField.displayName = 'CustomTextField';

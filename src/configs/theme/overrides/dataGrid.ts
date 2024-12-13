@@ -1,3 +1,5 @@
+import { extractRGB } from 'utils/extract-rgb'; // extractRGB fonksiyonu dahil edildi
+
 import { OwnerStateThemeType } from './';
 
 const DataGrid = () => {
@@ -54,7 +56,7 @@ const DataGrid = () => {
 					},
 				},
 				cell: ({ theme }: OwnerStateThemeType) => ({
-					borderColor: theme.palette.divider,
+					borderColor: extractRGB(theme.palette.divider), // extractRGB burada kullanıldı
 					'&:not(.MuiDataGrid-cellCheckbox)': {
 						paddingLeft: theme.spacing(4),
 						paddingRight: theme.spacing(4),
@@ -81,7 +83,8 @@ const DataGrid = () => {
 					},
 				}),
 				footerContainer: ({ theme }: OwnerStateThemeType) => ({
-					borderTop: `1px solid ${theme.palette.divider}`,
+					// extractRGB burada da kullanılabilir çünkü divider burada da bir renk değeri
+					borderTop: `1px solid ${extractRGB(theme.palette.divider)}`,
 					'& .MuiTablePagination-toolbar': {
 						paddingLeft: `${theme.spacing(4)} !important`,
 						paddingRight: `${theme.spacing(4)} !important`,
@@ -99,5 +102,4 @@ const DataGrid = () => {
 		},
 	};
 };
-
 export default DataGrid;

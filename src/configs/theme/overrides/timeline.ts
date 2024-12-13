@@ -1,4 +1,4 @@
-import { hexToRGBA } from 'utils/hex-to-rgba';
+import { extractRGB } from 'utils/extract-rgb';
 
 import { OwnerStateThemeType } from './';
 
@@ -27,7 +27,7 @@ const Timeline = () => {
 		MuiTimelineConnector: {
 			styleOverrides: {
 				root: ({ theme }: OwnerStateThemeType) => ({
-					backgroundColor: theme.palette.divider,
+					backgroundColor: `rgba(${extractRGB(theme.palette.divider)}, 0.99)`,
 				}),
 			},
 		},
@@ -41,25 +41,25 @@ const Timeline = () => {
 		MuiTimelineDot: {
 			styleOverrides: {
 				filledPrimary: ({ theme }: OwnerStateThemeType) => ({
-					boxShadow: `0 0 0 3px ${hexToRGBA(theme.palette.primary.main, 0.16)}`,
+					boxShadow: `0 0 0 3px rgba(${extractRGB(theme.palette.primary.main)}, 0.16)`,
 				}),
 				filledSecondary: ({ theme }: OwnerStateThemeType) => ({
-					boxShadow: `0 0 0 3px ${hexToRGBA(theme.palette.secondary.main, 0.16)}`,
+					boxShadow: `0 0 0 3px rgba(${extractRGB(theme.palette.secondary.main)}, 0.16)`,
 				}),
 				filledSuccess: ({ theme }: OwnerStateThemeType) => ({
-					boxShadow: `0 0 0 3px ${hexToRGBA(theme.palette.success.main, 0.16)}`,
+					boxShadow: `0 0 0 3px rgba(${extractRGB(theme.palette.success.main)}, 0.16)`,
 				}),
 				filledError: ({ theme }: OwnerStateThemeType) => ({
-					boxShadow: `0 0 0 3px ${hexToRGBA(theme.palette.error.main, 0.16)}`,
+					boxShadow: `0 0 0 3px rgba(${extractRGB(theme.palette.error.main)}, 0.16)`,
 				}),
 				filledWarning: ({ theme }: OwnerStateThemeType) => ({
-					boxShadow: `0 0 0 3px ${hexToRGBA(theme.palette.warning.main, 0.16)}`,
+					boxShadow: `0 0 0 3px rgba(${extractRGB(theme.palette.warning.main)}, 0.16)`,
 				}),
 				filledInfo: ({ theme }: OwnerStateThemeType) => ({
-					boxShadow: `0 0 0 3px ${hexToRGBA(theme.palette.info.main, 0.16)}`,
+					boxShadow: `0 0 0 3px rgba(${extractRGB(theme.palette.info.main)}, 0.16)`,
 				}),
 				filledGrey: ({ theme }: OwnerStateThemeType) => ({
-					boxShadow: `0 0 0 3px ${hexToRGBA(theme.palette.grey[400], 0.16)}`,
+					boxShadow: `0 0 0 3px rgba(${extractRGB(theme.palette.grey[400])}, 0.16)`,
 				}),
 				outlinedPrimary: ({ theme }: OwnerStateThemeType) => ({
 					'& svg': { color: theme.palette.primary.main },
