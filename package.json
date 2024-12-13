@@ -47,6 +47,7 @@
 		"i18next-chained-backend": "^4.6.2",
 		"i18next-http-backend": "^2.4.2",
 		"i18next-localstorage-backend": "^4.2.0",
+		"inquirer": "^8.0.0",
 		"luxon": "^3.5.0",
 		"primeicons": "^7.0.0",
 		"primereact": "^10.7.0",
