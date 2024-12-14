@@ -4,7 +4,7 @@ import { Modal } from 'components/modal/modal';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { AddSpecialDayPriceForm } from '../create/create-special-day-price-form';
+import { CreateBookingForm } from '../create/create-special-day-price-form';
 
 export const TableHeader = () => {
 	const { t } = useTranslation();
@@ -37,7 +37,7 @@ export const TableHeader = () => {
 				</Box>
 			</Box>
 			<Modal maxWidth={'lg'} open={open} title={t('roles:add')} onClose={handleDialogToggle}>
-				<AddSpecialDayPriceForm handleDialogToggle={handleDialogToggle} />
+				<CreateBookingForm handleDialogToggle={handleDialogToggle} />
 			</Modal>
 		</>
 	);
