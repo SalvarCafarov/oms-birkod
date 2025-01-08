@@ -2,33 +2,35 @@ import { request } from 'api';
 import { GetListByDynamicResponseDto } from 'types';
 
 import { Filter, PaginationParams } from '../types';
-import { BookingRequestDto, GuestDto } from './booking.dto';
+import { BookingRequestDto, UpdateBookingDto } from './booking.dto';
 
-export const specialDayPrice = {
-	// Add SpecialDayPrice
-	add: (body: BookingRequestDto) => request.post('/SpecialDayPrice/Add', body),
+// BookingRequestDto içeriğini, verdiğiniz JSON örneğine göre düzenliyoruz
+// Key alanı "Add" isteğinde gerekmiyor, "Update" isteğinde "key" gerekiyor.
 
-	// Update SpecialDayPrice
-	update: (body: BookingRequestDto) => request.put('/SpecialDayPrice/Update', body),
+export const booking = {
+	// Add Booking
+	add: (body: BookingRequestDto) => request.post('/Booking/Add', body),
 
-	// Delete SpecialDayPrice
+	// Update Booking
+	update: (body: UpdateBookingDto) => request.put('/Booking/Update', body),
+
+	// Delete Booking
 	delete: (key: number) =>
-		request.delete(`/SpecialDayPrice/Delete`, {
-			params: { key: key },
+		request.delete('/Booking/Delete', {
+			params: { key },
 		}),
 
 	// Get List by Dynamic
 	getListByDynamic: (params: PaginationParams, filter?: Filter) =>
-		request.post<GetListByDynamicResponseDto<GuestDto>>(
-			'/SpecialDayPrice/GetList/ByDynamic',
+		request.post<GetListByDynamicResponseDto<any>>(
+			'/Booking/GetList/ByDynamic',
 			filter ? (Object.keys(filter).length ? { filter } : {}) : {},
 			{
 				params: params,
 			},
 		),
 
-	// Get List Non-Paging
-	getListNonPaging: () => request.get<GuestDto[]>('/SpecialDayPrice/GetListNonPaging'),
+	// Diğer fonksiyonları (getList vs.) kendiniz yazmak isterseniz, buraya eklemeden bırakabilirsiniz.
 
-	queryKey: 'special-day-price',
+	queryKey: 'booking',
 };

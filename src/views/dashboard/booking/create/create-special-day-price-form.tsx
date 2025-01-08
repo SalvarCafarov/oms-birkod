@@ -1,80 +1,98 @@
+// src/views/dashboard/booking/create/CreateBookingForm.tsx
+
+import { yupResolver } from '@hookform/resolvers/yup';
 import { Autocomplete, Box, Button, Checkbox, Collapse, Grid, InputLabel, TextField, Typography } from '@mui/material';
 import { LocalizationProvider, MobileDateTimePicker } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { keepPreviousData, useQuery } from '@tanstack/react-query';
+import { keepPreviousData, useMutation, useQuery } from '@tanstack/react-query';
+import { booking, BookingRequestDto } from 'api/services/booking';
 import { customer, CustomerResponseDto } from 'api/services/customer';
 import { room, RoomResponseDto } from 'api/services/room';
 import { roomExtra, RoomExtraResponseDto } from 'api/services/room-extra';
 import { travelAgency } from 'api/services/travel-agency';
 import { Modal } from 'components/modal/modal';
-import dayjs, { Dayjs } from 'dayjs';
+import dayjs from 'dayjs';
+import { queryClient } from 'main';
 import { forwardRef, useState } from 'react';
 import { Controller, useFieldArray, useForm } from 'react-hook-form';
+import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
 import { AddCustomerForm } from 'views/dashboard/customer/create/create-customer-form';
+import * as Yup from 'yup';
 
-export interface TravelAgencyResponseDto {
-	key: number;
-	agencyName: string;
-	discountRate: number;
-}
+import bookingSchema from './validationSchema';
 
-interface FormData {
+// FormData arayüzü
+export interface FormData {
 	CustomerId: number;
 	TravelAgencyId?: number;
-	startDate: Dayjs;
-	endDate?: Dayjs;
-	checkIn?: Dayjs;
+	startDate: string; // ISO 8601 olarak tutacağız
+	endDate?: string | null; // ISO 8601 veya null
+	checkIn?: boolean | null; // ISO 8601 veya null
 	isHourly: boolean;
-	childCount: number;
-	description?: string;
-	discountAmount: string;
-	discountReason: string;
+	childCount?: number | null; // sayısal (varsayılan: 0)
+	description?: string | null;
+	discountAmount: number; // sayısal (Yup'ta transform ile string -> number)
+	discountReason?: string | null;
 	rooms: number[];
-	roomExtras: number[];
-	guests: {
-		name: string;
-		surname: string;
-		fatherName: string;
-		passportNo: string;
-		birthday: Dayjs;
-	}[];
+	roomExtras?: number[] | null;
+	guests:
+		| {
+				name: string;
+				surname: string;
+				fatherName?: string | null;
+				passportNo?: string | null;
+				birthday: string; // ISO 8601 string
+		  }[]
+		| null;
 }
 
+// Basit bir CustomTextField örneği
 const CustomTextField = forwardRef((props, ref) => <TextField {...props} inputRef={ref} />);
 CustomTextField.displayName = 'CustomTextField';
 
 export const CreateBookingForm = ({ handleDialogToggle }: { handleDialogToggle: () => void }) => {
-	const { control, handleSubmit, setValue } = useForm<FormData>({
+	const { t } = useTranslation();
+
+	// useForm: bookingSchema ile Yup doğrulaması
+	const {
+		control,
+		handleSubmit,
+		setValue,
+		formState: { errors },
+	} = useForm<FormData>({
+		resolver: yupResolver<Yup.AnyObjectSchema>(bookingSchema),
 		defaultValues: {
 			CustomerId: 0,
-			startDate: dayjs(),
+			startDate: dayjs().toISOString(),
 			isHourly: false,
 			TravelAgencyId: undefined,
-			childCount: 0,
-			endDate: undefined,
-			checkIn: undefined,
-			description: '',
-			discountAmount: '',
-			discountReason: '',
+			childCount: null,
+			endDate: null,
+			checkIn: null,
+			description: null,
+			discountAmount: 0, // numeric default
+			discountReason: null,
 			rooms: [],
-			roomExtras: [],
-			guests: [],
+			roomExtras: null,
+			guests: [
+				{
+					name: '',
+					surname: '',
+					fatherName: null,
+					passportNo: null,
+					birthday: dayjs().toISOString(),
+				},
+			],
 		},
 	});
 
-	const [showTravelAgency, setShowTravelAgency] = useState(false);
-	const [showEndDate, setShowEndDate] = useState(false);
-	const [showCheckIn, setShowCheckIn] = useState(false);
-	const [showChildCount, setShowChildCount] = useState(false);
-	const [showDescription, setShowDescription] = useState(false);
+	// Local states
 	const [showDiscountFields, setShowDiscountFields] = useState(false);
+	const [showGuests, setShowGuests] = useState(false);
 	const [showCreateCustomerToggle, setShowCreateCustomerToggle] = useState(false);
-	const [guests, setGuests] = useState<FormData['guests']>([]); // Guests array state
-	const [showGuests, setShowGuests] = useState(false); // Guests bölümü görünürlüğü
 
-	const { t } = useTranslation();
-
+	// TanStack React Query - data fetch
 	const { data: travelAgencyOptions = [] } = useQuery({
 		queryKey: ['travelAgency'],
 		queryFn: () => travelAgency.getListNonPaging(),
@@ -103,52 +121,64 @@ export const CreateBookingForm = ({ handleDialogToggle }: { handleDialogToggle: 
 		staleTime: Infinity,
 	});
 
+	// guests alanı için useFieldArray
 	const { fields, append, remove } = useFieldArray({
 		control,
 		name: 'guests',
 	});
 
-	const handleAddInput = () => {
-		setGuests([
-			...guests,
-			{
-				name: '',
-				surname: '',
-				fatherName: '',
-				passportNo: '',
-				birthday: dayjs(),
-			},
-		]);
-	};
+	// Modal açma/kapama
+	function handleCreateCustomerToggle() {
+		setShowCreateCustomerToggle((prev) => !prev);
+	}
 
-	const handleRemoveInput = (index: number) => {
-		setGuests(guests.filter((_, i) => i !== index));
-	};
+	// Mutation (Booking ekleme)
+	const { mutate: createBooking } = useMutation({
+		mutationFn: booking.add,
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: [booking.queryKey] });
+			toast.success(t('home:bookingAddedSuccess') || 'Booking added successfully!');
+			handleDialogToggle();
+		},
+		onError: (error: any) => {
+			toast.error(error?.message || t('home:bookingAddError') || 'Error while adding booking');
+		},
+	});
 
+	// Form Submit
 	const onSubmit = (data: FormData) => {
-		const filteredData: Partial<FormData> = {
-			CustomerId: data.CustomerId,
+		// Gerekirse ek manipülasyon yapabilirsiniz.
+		// Örneğin dayjs çevrimleri:
+		//   - Biz zaten ISO string tutuyoruz,
+		//   - API'ye de ISO string göndermek isteyebiliriz.
+		// Bu nedenle ek bir dönüşüm yapmaya gerek yok.
+		// Yine de misal:
+		const dto: BookingRequestDto = {
+			customerId: data.CustomerId,
+			travelAgencyId: data.TravelAgencyId,
 			startDate: data.startDate,
-			guests: data.guests,
-			...(data.rooms.length && { rooms: data.rooms }),
-			...(data.roomExtras.length && { roomExtras: data.roomExtras }),
-			...(showTravelAgency && { TravelAgencyId: data.TravelAgencyId }),
-			...(showEndDate && { endDate: data.endDate }),
-			...(showCheckIn && { checkIn: data.checkIn }),
-			...(showChildCount && { childCount: data.childCount }),
-			...(showDescription && { description: data.description }), // Yeni description sahəsi əlavə olundu
-			...(showDescription && { discountReason: data.description }), // Yeni description sahəsi əlavə olundu
-			...(showDiscountFields && { discountAmount: data.discountAmount }), // Yeni description sahəsi əlavə olundu
-			...(showDiscountFields && { discountReason: data.discountReason }), // Yeni description sahəsi əlavə olundu
+			endDate: data.endDate ?? undefined,
+			checkIn: data.checkIn ?? undefined,
 			isHourly: data.isHourly,
+			childCount: data.childCount ?? undefined,
+			description: data.description ?? undefined,
+			discountAmount: data.discountAmount,
+			discountReason: data.discountReason ?? '',
+			rooms: data.rooms,
+			roomExtras: data.roomExtras ?? undefined,
+			guests: [
+				{
+					name: '',
+					surname: '',
+					fatherName: undefined, // undefined olarak ayarlandı
+					passportNo: undefined, // undefined olarak ayarlandı
+					birthday: dayjs().toISOString(),
+				},
+			],
 		};
 
-		console.log('Filtered Form Data:', filteredData);
+		createBooking(dto);
 	};
-
-	function handleCreateCustomerToggle() {
-		return setShowCreateCustomerToggle(!showCreateCustomerToggle);
-	}
 
 	return (
 		<form onSubmit={handleSubmit(onSubmit)}>
@@ -166,40 +196,29 @@ export const CreateBookingForm = ({ handleDialogToggle }: { handleDialogToggle: 
 					{/* CustomerId */}
 					<Grid item xs={12}>
 						<Grid container alignItems="center">
-							<Grid item xs={3} sx={{ display: 'flex', justifyContent: 'center' }}>
-								<Button
-									type="button"
-									variant="contained"
-									onClick={() => {
-										handleCreateCustomerToggle();
-										console.log('s');
-									}}
-								>
-									{t('home:createCustomer')}
-								</Button>
-							</Grid>
-
 							<Grid item xs={9}>
+								<Typography variant="subtitle1">
+									{t('home:Customer') || 'Customer'} (Required)
+								</Typography>
 								<Controller
 									name="CustomerId"
 									control={control}
-									rules={{ required: 'Customer is required' }}
 									render={({ field, fieldState }) => (
 										<Autocomplete
 											{...field}
 											size="small"
 											options={customerOptions}
-											getOptionLabel={(option: CustomerResponseDto) => {
-												return `${option.name} ${option.surname} - ${option.passportNo}`;
-											}}
+											getOptionLabel={(option: CustomerResponseDto) =>
+												`${option.name} ${option.surname} - ${option.passportNo}`
+											}
 											isOptionEqualToValue={(option, value) => option.key === value.key}
 											value={customerOptions.find((option) => option.key === field.value) || null}
 											renderInput={(params) => (
 												<TextField
 													{...params}
+													variant="outlined"
 													error={Boolean(fieldState.error)}
 													helperText={fieldState.error?.message}
-													variant="outlined"
 												/>
 											)}
 											onChange={(_, data) => field.onChange(data?.key || 0)}
@@ -207,49 +226,43 @@ export const CreateBookingForm = ({ handleDialogToggle }: { handleDialogToggle: 
 									)}
 								/>
 							</Grid>
+							<Grid item xs={3} sx={{ display: 'flex', justifyContent: 'center' }}>
+								<Button
+									type="button"
+									variant="contained"
+									sx={{ mt: 4 }}
+									onClick={handleCreateCustomerToggle}
+								>
+									{t('home:createCustomer') || 'Create Customer'}
+								</Button>
+							</Grid>
 						</Grid>
 					</Grid>
 
 					{/* TravelAgencyId */}
 					<Grid item xs={6}>
-						<Grid container spacing={2} alignItems="center">
-							{/* Checkbox */}
-							<Grid item xs={1} sx={{ display: 'flex', justifyContent: 'center' }}>
-								<Checkbox
-									checked={showTravelAgency}
-									onChange={(e) => setShowTravelAgency(e.target.checked)}
+						<InputLabel>{t('home:TravelAgency') || 'Travel Agency'}</InputLabel>
+						<Controller
+							name="TravelAgencyId"
+							control={control}
+							render={({ field }) => (
+								<Autocomplete
+									{...field}
+									size="small"
+									options={travelAgencyOptions}
+									getOptionLabel={(option) => option.agencyName}
+									isOptionEqualToValue={(option, value) => option.key === value.key}
+									value={travelAgencyOptions.find((option) => option.key === field.value) || null}
+									renderInput={(params) => <TextField {...params} variant="outlined" />}
+									onChange={(_, data) => setValue('TravelAgencyId', data?.key)}
 								/>
-							</Grid>
-
-							{/* Input */}
-							<Grid item xs={11}>
-								<InputLabel>Include Travel Agency</InputLabel>
-								<Controller
-									name="TravelAgencyId"
-									control={control}
-									render={({ field }) => (
-										<Autocomplete
-											{...field}
-											size="small"
-											disabled={!showTravelAgency}
-											options={travelAgencyOptions}
-											getOptionLabel={(option: TravelAgencyResponseDto) => option.agencyName}
-											isOptionEqualToValue={(option, value) => option.key === value.key}
-											value={
-												travelAgencyOptions.find((option) => option.key === field.value) || null
-											}
-											renderInput={(params) => <TextField {...params} variant="outlined" />}
-											onChange={(_, data) => setValue('TravelAgencyId', data?.key || undefined)}
-										/>
-									)}
-								/>
-							</Grid>
-						</Grid>
+							)}
+						/>
 					</Grid>
 
 					{/* Start Date */}
 					<Grid item xs={6}>
-						<InputLabel required>Start Date</InputLabel>
+						<InputLabel required>{t('home:startDate') || 'Start Date'}</InputLabel>
 						<Controller
 							name="startDate"
 							control={control}
@@ -257,13 +270,13 @@ export const CreateBookingForm = ({ handleDialogToggle }: { handleDialogToggle: 
 								<LocalizationProvider dateAdapter={AdapterDayjs}>
 									<MobileDateTimePicker
 										{...field}
-										value={field.value}
+										value={field.value ? dayjs(field.value) : null}
 										slots={{
 											textField: (params) => (
 												<CustomTextField
 													ref={params.inputRef}
 													{...params}
-													size={'small'}
+													size="small"
 													error={!!fieldState.error}
 													helperText={fieldState.error?.message}
 													variant="outlined"
@@ -271,7 +284,7 @@ export const CreateBookingForm = ({ handleDialogToggle }: { handleDialogToggle: 
 												/>
 											),
 										}}
-										onChange={(value) => field.onChange(value)}
+										onChange={(value) => field.onChange(value ? value.toISOString() : '')}
 									/>
 								</LocalizationProvider>
 							)}
@@ -280,165 +293,152 @@ export const CreateBookingForm = ({ handleDialogToggle }: { handleDialogToggle: 
 
 					{/* End Date */}
 					<Grid item xs={6}>
-						<Grid container spacing={2} alignItems="center">
-							{/* Checkbox */}
-							<Grid item xs={1} sx={{ display: 'flex', justifyContent: 'center' }}>
-								<Checkbox checked={showEndDate} onChange={(e) => setShowEndDate(e.target.checked)} />
-							</Grid>
-
-							{/* Input */}
-							<Grid item xs={11}>
-								<InputLabel>Include End Date</InputLabel>
-								<Controller
-									name="endDate"
-									control={control}
-									render={({ field }) => (
-										<LocalizationProvider dateAdapter={AdapterDayjs}>
-											<MobileDateTimePicker
-												{...field}
-												disabled={!showEndDate}
-												value={field.value || null}
-												slots={{
-													textField: (params) => (
-														<CustomTextField
-															ref={params.inputRef}
-															{...params}
-															size="small"
-															variant="outlined"
-														/>
-													),
-												}}
-												onChange={(value) => field.onChange(value)}
-											/>
-										</LocalizationProvider>
-									)}
-								/>
-							</Grid>
-						</Grid>
+						<InputLabel>{t('home:endDate') || 'End Date'}</InputLabel>
+						<Controller
+							name="endDate"
+							control={control}
+							render={({ field, fieldState }) => (
+								<LocalizationProvider dateAdapter={AdapterDayjs}>
+									<MobileDateTimePicker
+										{...field}
+										value={field.value ? dayjs(field.value) : null}
+										slots={{
+											textField: (params) => (
+												<CustomTextField
+													ref={params.inputRef}
+													{...params}
+													size="small"
+													variant="outlined"
+													error={!!fieldState.error}
+													helperText={fieldState.error?.message}
+												/>
+											),
+										}}
+										onChange={(value) => field.onChange(value ? value.toISOString() : null)}
+									/>
+								</LocalizationProvider>
+							)}
+						/>
 					</Grid>
 
 					{/* Actual Check-In */}
 					<Grid item xs={6}>
-						<Grid container spacing={2} alignItems="center">
-							{/* Checkbox */}
-							<Grid item xs={1} sx={{ display: 'flex', justifyContent: 'center' }}>
-								<Checkbox checked={showCheckIn} onChange={(e) => setShowCheckIn(e.target.checked)} />
-							</Grid>
-
-							{/* Input */}
-							<Grid item xs={11}>
-								<InputLabel>Include Actual Check-In</InputLabel>
-								<Controller
-									name="checkIn"
-									control={control}
-									render={({ field }) => (
-										<LocalizationProvider dateAdapter={AdapterDayjs}>
-											<MobileDateTimePicker
-												{...field}
-												disabled={!showCheckIn}
-												value={field.value || null}
-												slots={{
-													textField: (params) => (
-														<CustomTextField
-															ref={params.inputRef}
-															{...params}
-															size="small"
-															variant="outlined"
-														/>
-													),
-												}}
-												onChange={(value) => field.onChange(value)}
-											/>
-										</LocalizationProvider>
-									)}
-								/>
-							</Grid>
-						</Grid>
+						<InputLabel>{t('home:actualCheckIn') || 'Actual Check-In'}</InputLabel>
+						<Controller
+							name="checkIn"
+							control={control}
+							render={({ field, fieldState }) => (
+								<LocalizationProvider dateAdapter={AdapterDayjs}>
+									<MobileDateTimePicker
+										{...field}
+										value={field.value ? dayjs(field.value) : null}
+										slots={{
+											textField: (params) => (
+												<CustomTextField
+													ref={params.inputRef}
+													{...params}
+													size="small"
+													variant="outlined"
+													error={!!fieldState.error}
+													helperText={fieldState.error?.message}
+												/>
+											),
+										}}
+										onChange={(value) => field.onChange(value ? value.toISOString() : null)}
+									/>
+								</LocalizationProvider>
+							)}
+						/>
 					</Grid>
+
+					{/* Child Count */}
 					<Grid item xs={6}>
-						<Grid container spacing={2} alignItems="center">
-							{/* Checkbox */}
-							<Grid item xs={1} sx={{ display: 'flex', justifyContent: 'center' }}>
-								<Checkbox
-									checked={showChildCount}
-									inputProps={{ 'aria-label': 'Include Actual Check-In' }} // Accessible label
-									onChange={(e) => setShowChildCount(e.target.checked)}
+						<InputLabel htmlFor="child-count">{t('home:childCount') || 'Child Count'}</InputLabel>
+						<Controller
+							name="childCount"
+							control={control}
+							render={({ field, fieldState }) => (
+								<TextField
+									{...field}
+									fullWidth
+									id="child-count"
+									size="small"
+									variant="outlined"
+									type="number"
+									error={!!fieldState.error}
+									helperText={fieldState.error?.message}
 								/>
-							</Grid>
-
-							{/* Input */}
-							<Grid item xs={11}>
-								<InputLabel htmlFor="child-count">Include Child Count</InputLabel>
-								<Controller
-									name="childCount"
-									control={control}
-									render={({ field }) => (
-										<TextField
-											{...field} // Connects Controller to TextField
-											fullWidth
-											id="child-count" // Matches with InputLabel for accessibility
-											size="small"
-											variant="outlined"
-											type="number"
-											disabled={!showChildCount} // Disable input if checkbox is unchecked
-										/>
-									)}
-								/>
-							</Grid>
-						</Grid>
+							)}
+						/>
 					</Grid>
+
+					{/* Description */}
 					<Grid item xs={6}>
-						<Grid container spacing={2} alignItems="center">
-							{/* Checkbox */}
-							<Grid item xs={1} sx={{ display: 'flex', justifyContent: 'center' }}>
-								<Checkbox
-									checked={showDescription}
-									onChange={(e) => setShowDescription(e.target.checked)}
+						<InputLabel htmlFor="description">{t('home:description') || 'Description'}</InputLabel>
+						<Controller
+							name="description"
+							control={control}
+							render={({ field, fieldState }) => (
+								<TextField
+									{...field}
+									fullWidth
+									id="description"
+									size="small"
+									variant="outlined"
+									error={!!fieldState.error}
+									helperText={fieldState.error?.message}
 								/>
-							</Grid>
-
-							{/* Input */}
-							<Grid item xs={11}>
-								<InputLabel htmlFor="description">Include Description</InputLabel>
-								<Controller
-									name="description"
-									control={control}
-									render={({ field }) => (
-										<TextField
-											{...field}
-											fullWidth
-											id="description"
-											size="small"
-											variant="outlined"
-											disabled={!showDescription}
-										/>
-									)}
-								/>
-							</Grid>
-						</Grid>
+							)}
+						/>
 					</Grid>
+
+					{/* Discount + isHourly Checkboxlar */}
 					<Grid item xs={12}>
-						<Grid container columnSpacing={5} alignItems="center">
-							{/* Checkbox */}
-							<Grid item sx={{ display: 'flex', alignItems: 'center' }}>
+						<Grid container spacing={2} alignItems="center">
+							{/* Discount Checkbox */}
+							<Grid item>
 								<Checkbox
 									checked={showDiscountFields}
 									onChange={(e) => setShowDiscountFields(e.target.checked)}
 								/>
-								<Typography variant="body1">You want discount</Typography>
+								<Typography variant="body1" component="span">
+									{t('home:youWantDiscount') || 'You want discount'}
+								</Typography>
+							</Grid>
+
+							{/* isHourly Checkbox */}
+							<Grid item>
+								<Controller
+									name="isHourly"
+									control={control}
+									render={({ field }) => (
+										<>
+											<Checkbox
+												{...field}
+												checked={field.value}
+												onChange={(e) => field.onChange(e.target.checked)}
+											/>
+											<Typography variant="body1" component="span">
+												{t('home:isHourly') || 'isHourly'}
+											</Typography>
+										</>
+									)}
+								/>
 							</Grid>
 						</Grid>
 
-						{/* Collapsible Fields */}
+						{/* Collapsible Fields for Discount */}
 						<Collapse unmountOnExit in={showDiscountFields} timeout="auto">
 							<Grid container columnSpacing={5} mt={2}>
 								{/* DiscountAmount Input */}
 								<Grid item xs={6}>
-									<InputLabel htmlFor="discount-amount">Discount Amount (Endirim Faizi)</InputLabel>
+									<InputLabel htmlFor="discount-amount">
+										{t('home:discountAmount') || 'Discount Amount'}
+									</InputLabel>
 									<Controller
 										name="discountAmount"
 										control={control}
-										render={({ field }) => (
+										render={({ field, fieldState }) => (
 											<TextField
 												{...field}
 												fullWidth
@@ -446,6 +446,8 @@ export const CreateBookingForm = ({ handleDialogToggle }: { handleDialogToggle: 
 												size="small"
 												variant="outlined"
 												type="number"
+												error={!!fieldState.error}
+												helperText={fieldState.error?.message}
 											/>
 										)}
 									/>
@@ -453,17 +455,21 @@ export const CreateBookingForm = ({ handleDialogToggle }: { handleDialogToggle: 
 
 								{/* DiscountReason Input */}
 								<Grid item xs={6}>
-									<InputLabel htmlFor="discount-reason">Discount Reason (Endirim Səbəbi)</InputLabel>
+									<InputLabel htmlFor="discount-reason">
+										{t('home:discountReason') || 'Discount Reason'}
+									</InputLabel>
 									<Controller
 										name="discountReason"
 										control={control}
-										render={({ field }) => (
+										render={({ field, fieldState }) => (
 											<TextField
 												{...field}
 												fullWidth
 												id="discount-reason"
 												size="small"
 												variant="outlined"
+												error={!!fieldState.error}
+												helperText={fieldState.error?.message}
 											/>
 										)}
 									/>
@@ -471,13 +477,14 @@ export const CreateBookingForm = ({ handleDialogToggle }: { handleDialogToggle: 
 							</Grid>
 						</Collapse>
 					</Grid>
-					<Grid item xs={6}>
-						<InputLabel>Rooms</InputLabel>
 
+					{/* Rooms */}
+					<Grid item xs={6}>
+						<InputLabel>{t('home:rooms') || 'Rooms'}</InputLabel>
 						<Controller
 							name="rooms"
 							control={control}
-							render={({ field }) => (
+							render={({ field, fieldState }) => (
 								<Autocomplete
 									{...field}
 									multiple
@@ -485,121 +492,194 @@ export const CreateBookingForm = ({ handleDialogToggle }: { handleDialogToggle: 
 									getOptionLabel={(option: RoomResponseDto) =>
 										`${option.roomNumber} - ${option.roomStatus}`
 									}
-									size="small"
-									value={roomList.filter((room) => field.value?.includes(room.key))}
 									isOptionEqualToValue={(option, value) => option.key === value.key}
-									renderInput={(params) => <TextField {...params} fullWidth variant="outlined" />}
-									onChange={(_, data) => field.onChange(data.map((item) => item.key))}
+									renderInput={(params) => (
+										<TextField
+											{...params}
+											variant="outlined"
+											error={!!fieldState.error}
+											helperText={fieldState.error?.message}
+										/>
+									)}
+									onChange={(_, selectedOptions) => {
+										// selectedOptions => RoomResponseDto[]
+										// room.key => number
+										// Dikkat: room.key eğer undefined olabiliyorsa, filter(Boolean) vs. yapabilirsiniz
+										const keys = selectedOptions.map((room) => room.key);
+										// Artık keys => number[] olmalı
+										field.onChange(keys);
+									}}
+									size="small"
+									// Aşağıda 'value' ve 'onChange' uyumlu olması çok önemli!
+									value={
+										// field.value bir number[]
+										// roomList içindeki "option.key" ile eşleşeni buluyoruz
+										roomList.filter((room) => field.value.includes(room.key))
+									}
 								/>
 							)}
 						/>
 					</Grid>
+
+					{/* Room Extras */}
 					<Grid item xs={6}>
-						<InputLabel>Room Extras</InputLabel>
+						<InputLabel>{t('home:roomExtras') || 'Room Extras'}</InputLabel>
 						<Controller
 							name="roomExtras"
 							control={control}
-							render={({ field }) => (
+							render={({ field, fieldState }) => (
 								<Autocomplete
+									{...field}
 									multiple
 									options={roomExtraList}
 									getOptionLabel={(option: RoomExtraResponseDto) =>
 										`${option.extraName} - ${option.price}`
 									}
 									size="small"
-									isOptionEqualToValue={(option, value) => option.key === value.key}
 									value={roomExtraList.filter((extra) => field.value?.includes(extra.key))}
-									renderInput={(params) => <TextField {...params} fullWidth variant="outlined" />}
+									isOptionEqualToValue={(option, value) => option.key === value.key}
+									renderInput={(params) => (
+										<TextField
+											{...params}
+											fullWidth
+											variant="outlined"
+											error={!!fieldState.error}
+											helperText={fieldState.error?.message}
+										/>
+									)}
 									onChange={(_, data) => field.onChange(data.map((item) => item.key))}
 								/>
 							)}
 						/>
 					</Grid>
+
+					{/* Guests */}
 					<Grid item xs={12}>
-						<Checkbox checked={showGuests} onChange={(e) => setShowGuests(e.target.checked)} /> Enable
-						Guests
+						<Checkbox checked={showGuests} onChange={(e) => setShowGuests(e.target.checked)} />{' '}
+						{t('home:enableGuests') || 'Enable Guests'}
 						<Collapse unmountOnExit in={showGuests} timeout="auto">
 							<Grid container spacing={2}>
 								{fields.map((item, index) => (
 									<Grid key={item.id} container spacing={2} alignItems="center">
 										<Grid item xs={6}>
+											<InputLabel>{t('home:name') || 'Name'}</InputLabel>
 											<Controller
 												name={`guests.${index}.name`}
 												control={control}
-												render={({ field }) => (
-													<TextField {...field} fullWidth label="Name" variant="outlined" />
+												render={({ field, fieldState }) => (
+													<TextField
+														{...field}
+														fullWidth
+														size="small"
+														variant="outlined"
+														error={!!fieldState.error}
+														helperText={fieldState.error?.message}
+													/>
 												)}
 											/>
 										</Grid>
 										<Grid item xs={6}>
+											<InputLabel>{t('home:surname') || 'Surname'}</InputLabel>
 											<Controller
 												name={`guests.${index}.surname`}
 												control={control}
-												render={({ field }) => (
+												render={({ field, fieldState }) => (
 													<TextField
 														{...field}
 														fullWidth
-														label="Surname"
+														size="small"
 														variant="outlined"
+														error={!!fieldState.error}
+														helperText={fieldState.error?.message}
 													/>
 												)}
 											/>
 										</Grid>
 										<Grid item xs={6}>
+											<InputLabel>{t('home:fatherName') || 'Father Name'}</InputLabel>
 											<Controller
 												name={`guests.${index}.fatherName`}
 												control={control}
-												render={({ field }) => (
+												render={({ field, fieldState }) => (
 													<TextField
 														{...field}
 														fullWidth
-														label="Father Name"
+														size="small"
 														variant="outlined"
+														error={!!fieldState.error}
+														helperText={fieldState.error?.message}
 													/>
 												)}
 											/>
 										</Grid>
 										<Grid item xs={6}>
+											<InputLabel>{t('home:passportNo') || 'Passport No'}</InputLabel>
 											<Controller
 												name={`guests.${index}.passportNo`}
 												control={control}
-												render={({ field }) => (
+												render={({ field, fieldState }) => (
 													<TextField
 														{...field}
 														fullWidth
-														label="Passport No"
+														size="small"
 														variant="outlined"
+														error={!!fieldState.error}
+														helperText={fieldState.error?.message}
 													/>
 												)}
 											/>
 										</Grid>
 										<Grid item xs={6}>
+											<InputLabel>{t('home:birthday') || 'Birthday'}</InputLabel>
 											<Controller
 												name={`guests.${index}.birthday`}
 												control={control}
-												render={({ field }) => (
+												render={({ field, fieldState }) => (
 													<LocalizationProvider dateAdapter={AdapterDayjs}>
 														<MobileDateTimePicker
 															{...field}
+															value={field.value ? dayjs(field.value) : null}
 															slots={{
 																textField: (params) => (
 																	<TextField
 																		{...params}
 																		fullWidth
-																		label="Birthday"
 																		variant="outlined"
+																		size="small"
+																		error={!!fieldState.error}
+																		helperText={fieldState.error?.message}
 																	/>
 																),
 															}}
-															onChange={(value) => field.onChange(value)}
+															onChange={(value) =>
+																field.onChange(value ? value.toISOString() : '')
+															}
 														/>
 													</LocalizationProvider>
 												)}
 											/>
 										</Grid>
 										<Grid item xs={3}>
-											<Button variant="contained" color="error" onClick={() => remove(index)}>
-												Clear
+											<Button
+												variant="contained"
+												color="error"
+												onClick={() => {
+													if (fields.length === 1) {
+														// Sadece bir satır kalmışsa boş değerlere reset
+														setValue(`guests.${index}`, {
+															name: '',
+															surname: '',
+															fatherName: '',
+															passportNo: '',
+															birthday: dayjs().toISOString(),
+														});
+													} else {
+														// Birden çok satır varsa direkt kaldır
+														remove(index);
+													}
+												}}
+											>
+												{t('home:clear') || 'Clear'}
 											</Button>
 										</Grid>
 									</Grid>
@@ -613,19 +693,21 @@ export const CreateBookingForm = ({ handleDialogToggle }: { handleDialogToggle: 
 												surname: '',
 												fatherName: '',
 												passportNo: '',
-												birthday: dayjs(),
+												birthday: dayjs().toISOString(),
 											})
 										}
 									>
-										Add
+										{t('home:addGuest') || 'Add'}
 									</Button>
 								</Grid>
 							</Grid>
 						</Collapse>
 					</Grid>
 				</Grid>
+
+				{/* CreateCustomer Modal */}
 				<Modal
-					title="CreateCustomer"
+					title={t('home:createCustomer') || 'Create Customer'}
 					maxWidth="lg"
 					open={showCreateCustomerToggle}
 					onClose={handleCreateCustomerToggle}
@@ -633,7 +715,7 @@ export const CreateBookingForm = ({ handleDialogToggle }: { handleDialogToggle: 
 					<AddCustomerForm handleDialogToggle={handleCreateCustomerToggle} />
 				</Modal>
 
-				{/* Submit and Discard Buttons */}
+				{/* Submit & Discard Buttons */}
 				<Box
 					sx={{
 						display: 'flex',
@@ -643,10 +725,10 @@ export const CreateBookingForm = ({ handleDialogToggle }: { handleDialogToggle: 
 					}}
 				>
 					<Button type="submit" variant="contained">
-						Submit
+						{t('home:submit') || 'Submit'}
 					</Button>
 					<Button type="button" variant="outlined" color="secondary" onClick={handleDialogToggle}>
-						Discard
+						{t('home:discard') || 'Discard'}
 					</Button>
 				</Box>
 			</Box>
