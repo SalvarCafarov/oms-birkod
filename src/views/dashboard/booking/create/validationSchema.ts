@@ -1,84 +1,93 @@
-// src/views/dashboard/booking/create/validationSchema.ts
-import dayjs from 'dayjs';
-import * as yup from 'yup';
+// src/views/dashboard/booking/create/getBookingSchema.ts
 
-const bookingSchema = yup.object().shape({
-	CustomerId: yup.number().required('Customer is required'),
+import { z } from 'zod';
 
-	TravelAgencyId: yup.number().nullable(),
+/**
+ * Creates a dynamic Zod schema for the booking form,
+ * depending on whether discount & guests are enabled.
+ *
+ * @param showDiscount - Boolean indicating if discount fields are enabled
+ * @param showGuests - Boolean indicating if guests fields are enabled
+ * @param t - Translation function from i18n
+ */
+export function getBookingSchema(showDiscount: boolean, showGuests: boolean, t: (key: string) => string) {
+	return z.object({
+		// CustomerId (required)
+		CustomerId: z
+			.number({ required_error: t('booking:customerIdRequired') })
+			.nonnegative(t('booking:customerIdNonnegative'))
+			.min(1, t('booking:customerIdMinError')),
 
-	// Tarih alanlarını string olarak tutuyoruz, .test ile kontrol ediyoruz.
-	startDate: yup
-		.string()
-		.required('Start Date is required')
-		.test('is-valid-date', 'Start Date must be a valid date', (value) => {
-			if (!value) return false; // Boş ise geçersiz
+		// TravelAgencyId (optional)
+		TravelAgencyId: z.number().optional(),
 
-			return dayjs(value).isValid();
-		}),
+		// startDate (required)
+		startDate: z
+			.string({ required_error: t('booking:startDateRequired') })
+			.refine((val) => val !== '' && val !== undefined, {
+				message: t('booking:startDateEmptyError'),
+			}),
 
-	endDate: yup
-		.string()
-		.nullable()
-		.test('is-valid-date', 'End Date must be a valid date', (value) => {
-			// boş veya null ise sorun yok
-			if (!value) return true;
+		// endDate (optional)
+		endDate: z.string().optional(),
 
-			return dayjs(value).isValid();
-		}),
+		// checkIn (boolean, optional)
+		checkIn: z.boolean().optional(),
 
-	checkIn: yup
-		.string()
-		.nullable()
-		.test('is-valid-date', 'Check-In must be a valid date', (value) => {
-			if (!value) return true;
+		// isHourly (required)
+		isHourly: z.boolean({ required_error: t('booking:isHourlyRequired') }),
 
-			return dayjs(value).isValid();
-		}),
+		// childCount (optional)
+		childCount: z
+			.preprocess(
+				(val) => (val === '' || val === undefined ? undefined : Number(val)),
+				z.number().min(0, t('booking:childCountNonnegative')).optional(),
+			)
+			.optional(),
 
-	isHourly: yup.boolean().required(),
+		// description (optional)
+		description: z.string().optional(),
 
-	childCount: yup.number().typeError('Child Count must be a number').nullable(),
+		// discountAmount + discountReason
+		// If "You want discount" is checked, discountAmount is required
+		discountAmount: showDiscount
+			? z.preprocess(
+					(val) => (val === '' || val === undefined ? undefined : Number(val)),
+					z.number({ required_error: t('booking:discountAmountRequired') }),
+				)
+			: z.number().optional(),
 
-	description: yup.string().nullable(),
+		// discountReason is also required if showDiscount is true
+		discountReason: showDiscount ? z.string().min(1, t('booking:discountReasonRequired')) : z.string().optional(),
 
-	// discountAmount: UI'da metin olarak girilebilir;
-	// ama biz number'a çeviriyoruz. Boş ise 0 veriyoruz.
-	discountAmount: yup
-		.number()
-		.transform((curr, originalValue) => {
-			// Eğer kullanıcı hiç değer girmemişse veya boş string girmişse 0'a çeviriyoruz.
-			return originalValue === '' || originalValue == null ? 0 : curr;
-		})
-		.typeError('Discount Amount must be a valid number')
-		.required('Discount amount is required'),
+		// rooms (array, at least one)
+		rooms: z.array(z.number()).nonempty(t('booking:roomsRequiredError')),
 
-	discountReason: yup.string().nullable(),
+		// roomExtras (optional)
+		roomExtras: z.array(z.number()).optional(),
 
-	rooms: yup
-		.array()
-		.of(yup.number().required())
-		.min(1, 'At least one room is required') // Örnek kural
-		.required('Rooms is required'),
-
-	roomExtras: yup.array().of(yup.number()).nullable(),
-
-	guests: yup.array().of(
-		yup.object().shape({
-			name: yup.string().required('Guest name is required'),
-			surname: yup.string().required('Guest surname is required'),
-			fatherName: yup.string().nullable(),
-			passportNo: yup.string().nullable(),
-			birthday: yup
-				.string()
-				.required('Birthday is required')
-				.test('is-valid-date', 'Birthday must be a valid date', (value) => {
-					if (!value) return false;
-
-					return dayjs(value).isValid();
-				}),
-		}),
-	),
-});
-
-export default bookingSchema;
+		// guests
+		guests: showGuests
+			? z.array(
+					z.object({
+						name: z.string().min(1, t('booking:guestNameRequired')),
+						surname: z.string().min(1, t('booking:guestSurnameRequired')),
+						fatherName: z.string().optional(),
+						passportNo: z.string().optional(),
+						birthday: z.string().min(1, t('booking:guestBirthdayRequired')),
+					}),
+				)
+			: z
+					.array(
+						z.object({
+							name: z.string().optional(),
+							surname: z.string().optional(),
+							fatherName: z.string().optional(),
+							passportNo: z.string().optional(),
+							birthday: z.string().optional(),
+						}),
+					)
+					.optional()
+					.default([]),
+	});
+}

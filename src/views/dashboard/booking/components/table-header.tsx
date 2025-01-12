@@ -4,7 +4,7 @@ import { Modal } from 'components/modal/modal';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { CreateBookingForm } from '../create/create-special-day-price-form';
+import { CreateBookingForm } from '../create/create-booking';
 
 export const TableHeader = () => {
 	const { t } = useTranslation();

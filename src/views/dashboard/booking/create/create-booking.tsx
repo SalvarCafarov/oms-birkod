@@ -1,10 +1,11 @@
 // src/views/dashboard/booking/create/CreateBookingForm.tsx
-
-import { yupResolver } from '@hookform/resolvers/yup';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Autocomplete, Box, Button, Checkbox, Collapse, Grid, InputLabel, TextField, Typography } from '@mui/material';
-import { LocalizationProvider, MobileDateTimePicker } from '@mui/x-date-pickers';
+import { MobileDateTimePicker } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { keepPreviousData, useMutation, useQuery } from '@tanstack/react-query';
+// Our booking services & types
 import { booking, BookingRequestDto } from 'api/services/booking';
 import { customer, CustomerResponseDto } from 'api/services/customer';
 import { room, RoomResponseDto } from 'api/services/room';
@@ -12,87 +13,76 @@ import { roomExtra, RoomExtraResponseDto } from 'api/services/room-extra';
 import { travelAgency } from 'api/services/travel-agency';
 import { Modal } from 'components/modal/modal';
 import dayjs from 'dayjs';
+// Additional components
 import { queryClient } from 'main';
 import { forwardRef, useState } from 'react';
+// react-hook-form
 import { Controller, useFieldArray, useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
 import { AddCustomerForm } from 'views/dashboard/customer/create/create-customer-form';
-import * as Yup from 'yup';
 
-import bookingSchema from './validationSchema';
+import { getBookingSchema } from './validationSchema';
 
-// FormData arayüzü
-export interface FormData {
-	CustomerId: number;
-	TravelAgencyId?: number;
-	startDate: string; // ISO 8601 olarak tutacağız
-	endDate?: string | null; // ISO 8601 veya null
-	checkIn?: boolean | null; // ISO 8601 veya null
-	isHourly: boolean;
-	childCount?: number | null; // sayısal (varsayılan: 0)
-	description?: string | null;
-	discountAmount: number; // sayısal (Yup'ta transform ile string -> number)
-	discountReason?: string | null;
-	rooms: number[];
-	roomExtras?: number[] | null;
-	guests:
-		| {
-				name: string;
-				surname: string;
-				fatherName?: string | null;
-				passportNo?: string | null;
-				birthday: string; // ISO 8601 string
-		  }[]
-		| null;
-}
+// The dynamic Zod schema
 
-// Basit bir CustomTextField örneği
+// Infer the form data type from Zod
+// or you can do: export type FormData = ReturnType<typeof getBookingSchema>['_type'];
+type FormData = ReturnType<typeof getBookingSchema>['_type'];
+
+// A custom TextField that forwards ref (optional usage)
 const CustomTextField = forwardRef((props, ref) => <TextField {...props} inputRef={ref} />);
 CustomTextField.displayName = 'CustomTextField';
 
-export const CreateBookingForm = ({ handleDialogToggle }: { handleDialogToggle: () => void }) => {
-	const { t } = useTranslation();
+interface CreateBookingFormProps {
+	handleDialogToggle: () => void;
+}
 
-	// useForm: bookingSchema ile Yup doğrulaması
+export const CreateBookingForm = ({ handleDialogToggle }: CreateBookingFormProps) => {
+	const { t } = useTranslation('home');
+
+	// Local states for dynamic fields
+	const [showDiscountFields, setShowDiscountFields] = useState(false);
+	const [showGuests, setShowGuests] = useState(false);
+
+	// Customer creation modal
+	const [showCreateCustomerToggle, setShowCreateCustomerToggle] = useState(false);
+
+	// react-hook-form with Zod
 	const {
 		control,
 		handleSubmit,
 		setValue,
 		formState: { errors },
 	} = useForm<FormData>({
-		resolver: yupResolver<Yup.AnyObjectSchema>(bookingSchema),
+		resolver: zodResolver(getBookingSchema(showDiscountFields, showGuests, t)),
 		defaultValues: {
-			CustomerId: 0,
-			startDate: dayjs().toISOString(),
-			isHourly: false,
+			CustomerId: undefined,
 			TravelAgencyId: undefined,
-			childCount: null,
-			endDate: null,
-			checkIn: null,
-			description: null,
-			discountAmount: 0, // numeric default
-			discountReason: null,
+			startDate: '',
+			endDate: '',
+			// checkIn is a boolean
+			checkIn: false,
+			isHourly: false,
+			childCount: 0,
+			description: '',
+			discountAmount: 0,
+			discountReason: '',
 			rooms: [],
-			roomExtras: null,
+			roomExtras: [],
 			guests: [
 				{
 					name: '',
 					surname: '',
-					fatherName: null,
-					passportNo: null,
-					birthday: dayjs().toISOString(),
+					fatherName: '',
+					passportNo: '',
+					birthday: '',
 				},
 			],
 		},
 	});
 
-	// Local states
-	const [showDiscountFields, setShowDiscountFields] = useState(false);
-	const [showGuests, setShowGuests] = useState(false);
-	const [showCreateCustomerToggle, setShowCreateCustomerToggle] = useState(false);
-
-	// TanStack React Query - data fetch
+	// Queries
 	const { data: travelAgencyOptions = [] } = useQuery({
 		queryKey: ['travelAgency'],
 		queryFn: () => travelAgency.getListNonPaging(),
@@ -121,23 +111,23 @@ export const CreateBookingForm = ({ handleDialogToggle }: { handleDialogToggle: 
 		staleTime: Infinity,
 	});
 
-	// guests alanı için useFieldArray
+	// Guests field array
 	const { fields, append, remove } = useFieldArray({
 		control,
 		name: 'guests',
 	});
 
-	// Modal açma/kapama
-	function handleCreateCustomerToggle() {
+	// Toggle for create-customer modal
+	const handleCreateCustomerToggle = () => {
 		setShowCreateCustomerToggle((prev) => !prev);
-	}
+	};
 
-	// Mutation (Booking ekleme)
-	const { mutate: createBooking } = useMutation({
+	// Booking mutation
+	const { mutate: createBookingMutation } = useMutation({
 		mutationFn: booking.add,
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: [booking.queryKey] });
-			toast.success(t('home:bookingAddedSuccess') || 'Booking added successfully!');
+			toast.success(t('home:bookingAddedSuccess') || 'added successfully!');
 			handleDialogToggle();
 		},
 		onError: (error: any) => {
@@ -145,39 +135,41 @@ export const CreateBookingForm = ({ handleDialogToggle }: { handleDialogToggle: 
 		},
 	});
 
-	// Form Submit
+	// onSubmit
 	const onSubmit = (data: FormData) => {
-		// Gerekirse ek manipülasyon yapabilirsiniz.
-		// Örneğin dayjs çevrimleri:
-		//   - Biz zaten ISO string tutuyoruz,
-		//   - API'ye de ISO string göndermek isteyebiliriz.
-		// Bu nedenle ek bir dönüşüm yapmaya gerek yok.
-		// Yine de misal:
+		// Transform form data into BookingRequestDto
 		const dto: BookingRequestDto = {
 			customerId: data.CustomerId,
 			travelAgencyId: data.TravelAgencyId,
 			startDate: data.startDate,
-			endDate: data.endDate ?? undefined,
-			checkIn: data.checkIn ?? undefined,
+			endDate: data.endDate || undefined,
+			checkIn: data.checkIn, // boolean
 			isHourly: data.isHourly,
-			childCount: data.childCount ?? undefined,
-			description: data.description ?? undefined,
-			discountAmount: data.discountAmount,
-			discountReason: data.discountReason ?? '',
+			childCount: data.childCount || undefined,
+			description: data.description || undefined,
+			discountAmount: Number(data.discountAmount),
+			// IMPORTANT: "discountReason" in the interface is required
+			// if your schema allows optional, be sure to fallback to '' or some default
+			discountReason: data.discountReason || '',
+
 			rooms: data.rooms,
-			roomExtras: data.roomExtras ?? undefined,
-			guests: [
-				{
-					name: '',
-					surname: '',
-					fatherName: undefined, // undefined olarak ayarlandı
-					passportNo: undefined, // undefined olarak ayarlandı
-					birthday: dayjs().toISOString(),
-				},
-			],
+			roomExtras: data.roomExtras || undefined,
+			guests: data.guests
+				? data.guests.map((g) => ({
+						name: g.name,
+						surname: g.surname,
+						fatherName: g.fatherName || undefined,
+						passportNo: g.passportNo || undefined,
+						birthday: g.birthday,
+					}))
+				: [],
 		};
 
-		createBooking(dto);
+		// Debug
+		console.log('DTO:', dto);
+
+		// Send the data to the backend
+		createBookingMutation(dto);
 	};
 
 	return (
@@ -193,35 +185,35 @@ export const CreateBookingForm = ({ handleDialogToggle }: { handleDialogToggle: 
 				}}
 			>
 				<Grid container columnSpacing={5} rowSpacing={3}>
-					{/* CustomerId */}
+					{/* CustomerId (required) */}
 					<Grid item xs={12}>
 						<Grid container alignItems="center">
 							<Grid item xs={9}>
-								<Typography variant="subtitle1">
-									{t('home:Customer') || 'Customer'} (Required)
-								</Typography>
+								<Typography variant="subtitle1">{t('home:Customer')} *</Typography>
 								<Controller
 									name="CustomerId"
 									control={control}
 									render={({ field, fieldState }) => (
 										<Autocomplete
 											{...field}
-											size="small"
 											options={customerOptions}
+											size="small"
+											value={customerOptions.find((opt) => opt.key === field.value) || null}
 											getOptionLabel={(option: CustomerResponseDto) =>
 												`${option.name} ${option.surname} - ${option.passportNo}`
 											}
 											isOptionEqualToValue={(option, value) => option.key === value.key}
-											value={customerOptions.find((option) => option.key === field.value) || null}
 											renderInput={(params) => (
 												<TextField
 													{...params}
 													variant="outlined"
-													error={Boolean(fieldState.error)}
+													error={!!fieldState.error}
 													helperText={fieldState.error?.message}
 												/>
 											)}
-											onChange={(_, data) => field.onChange(data?.key || 0)}
+											onChange={(_, selected) => {
+												field.onChange(selected?.key ?? undefined);
+											}}
 										/>
 									)}
 								/>
@@ -239,73 +231,78 @@ export const CreateBookingForm = ({ handleDialogToggle }: { handleDialogToggle: 
 						</Grid>
 					</Grid>
 
-					{/* TravelAgencyId */}
+					{/* TravelAgencyId (optional) */}
 					<Grid item xs={6}>
-						<InputLabel>{t('home:TravelAgency') || 'Travel Agency'}</InputLabel>
+						<InputLabel>{t('TravelAgency') || 'Travel Agency'}</InputLabel>
 						<Controller
 							name="TravelAgencyId"
 							control={control}
-							render={({ field }) => (
+							render={({ field, fieldState }) => (
 								<Autocomplete
 									{...field}
 									size="small"
 									options={travelAgencyOptions}
-									getOptionLabel={(option) => option.agencyName}
+									value={travelAgencyOptions.find((opt) => opt.key === field.value) || null}
+									getOptionLabel={(opt) => opt.agencyName}
 									isOptionEqualToValue={(option, value) => option.key === value.key}
-									value={travelAgencyOptions.find((option) => option.key === field.value) || null}
-									renderInput={(params) => <TextField {...params} variant="outlined" />}
-									onChange={(_, data) => setValue('TravelAgencyId', data?.key)}
+									renderInput={(params) => (
+										<TextField
+											{...params}
+											variant="outlined"
+											error={!!fieldState.error}
+											helperText={fieldState.error?.message}
+										/>
+									)}
+									onChange={(_, selected) => {
+										field.onChange(selected?.key ?? undefined);
+									}}
 								/>
 							)}
 						/>
 					</Grid>
 
-					{/* Start Date */}
+					{/* Start Date (required) */}
 					<Grid item xs={6}>
-						<InputLabel required>{t('home:startDate') || 'Start Date'}</InputLabel>
+						<InputLabel required>{t('startDate') || 'Start Date'}</InputLabel>
 						<Controller
 							name="startDate"
 							control={control}
 							render={({ field, fieldState }) => (
 								<LocalizationProvider dateAdapter={AdapterDayjs}>
 									<MobileDateTimePicker
-										{...field}
 										value={field.value ? dayjs(field.value) : null}
 										slots={{
 											textField: (params) => (
 												<CustomTextField
-													ref={params.inputRef}
 													{...params}
 													size="small"
+													variant="outlined"
 													error={!!fieldState.error}
 													helperText={fieldState.error?.message}
-													variant="outlined"
 													inputRef={field.ref}
 												/>
 											),
 										}}
-										onChange={(value) => field.onChange(value ? value.toISOString() : '')}
+										onChange={(val) => field.onChange(val ? val.toISOString() : '')}
 									/>
 								</LocalizationProvider>
 							)}
 						/>
 					</Grid>
 
-					{/* End Date */}
+					{/* End Date (optional) */}
 					<Grid item xs={6}>
-						<InputLabel>{t('home:endDate') || 'End Date'}</InputLabel>
+						<InputLabel>{t('endDate') || 'End Date'}</InputLabel>
 						<Controller
 							name="endDate"
 							control={control}
 							render={({ field, fieldState }) => (
 								<LocalizationProvider dateAdapter={AdapterDayjs}>
 									<MobileDateTimePicker
-										{...field}
 										value={field.value ? dayjs(field.value) : null}
 										slots={{
 											textField: (params) => (
 												<CustomTextField
-													ref={params.inputRef}
 													{...params}
 													size="small"
 													variant="outlined"
@@ -314,46 +311,77 @@ export const CreateBookingForm = ({ handleDialogToggle }: { handleDialogToggle: 
 												/>
 											),
 										}}
-										onChange={(value) => field.onChange(value ? value.toISOString() : null)}
+										onChange={(val) => field.onChange(val ? val.toISOString() : '')}
 									/>
 								</LocalizationProvider>
 							)}
 						/>
 					</Grid>
 
-					{/* Actual Check-In */}
-					<Grid item xs={6}>
-						<InputLabel>{t('home:actualCheckIn') || 'Actual Check-In'}</InputLabel>
-						<Controller
-							name="checkIn"
-							control={control}
-							render={({ field, fieldState }) => (
-								<LocalizationProvider dateAdapter={AdapterDayjs}>
-									<MobileDateTimePicker
-										{...field}
-										value={field.value ? dayjs(field.value) : null}
-										slots={{
-											textField: (params) => (
-												<CustomTextField
-													ref={params.inputRef}
-													{...params}
-													size="small"
-													variant="outlined"
-													error={!!fieldState.error}
-													helperText={fieldState.error?.message}
-												/>
-											),
-										}}
-										onChange={(value) => field.onChange(value ? value.toISOString() : null)}
-									/>
-								</LocalizationProvider>
-							)}
-						/>
+					{/* CHECKBOXES for isHourly and checkIn */}
+					<Grid
+						item
+						xs={6}
+						sx={{
+							mt: 4,
+						}}
+					>
+						<Grid container spacing={4} alignItems="center">
+							{/* isHourly (required) */}
+							<Grid item>
+								<Controller
+									name="isHourly"
+									control={control}
+									render={({ field, fieldState }) => (
+										<>
+											<Checkbox
+												{...field}
+												checked={field.value}
+												onChange={(e) => field.onChange(e.target.checked)}
+											/>
+											<Typography variant="body1" component="span">
+												{t('isHourly') || 'isHourly'}
+											</Typography>
+											{fieldState.error && (
+												<Typography color="error" variant="caption" sx={{ ml: 1 }}>
+													{fieldState.error?.message}
+												</Typography>
+											)}
+										</>
+									)}
+								/>
+							</Grid>
+
+							{/* checkIn (boolean, optional) */}
+							<Grid item>
+								<Controller
+									name="checkIn"
+									control={control}
+									render={({ field, fieldState }) => (
+										<>
+											<Checkbox
+												{...field}
+												checked={field.value}
+												onChange={(e) => field.onChange(e.target.checked)}
+											/>
+											<Typography variant="body1" component="span">
+												{t('checkIn') || 'Check-In'}
+											</Typography>
+											{fieldState.error && (
+												<Typography color="error" variant="caption" sx={{ ml: 1 }}>
+													{fieldState.error?.message}
+												</Typography>
+											)}
+										</>
+									)}
+								/>
+							</Grid>
+						</Grid>
 					</Grid>
 
-					{/* Child Count */}
+					{/* Child Count (optional) */}
 					<Grid item xs={6}>
-						<InputLabel htmlFor="child-count">{t('home:childCount') || 'Child Count'}</InputLabel>
+						<InputLabel>{t('childCount') || 'Child Count'}</InputLabel>
 						<Controller
 							name="childCount"
 							control={control}
@@ -361,7 +389,6 @@ export const CreateBookingForm = ({ handleDialogToggle }: { handleDialogToggle: 
 								<TextField
 									{...field}
 									fullWidth
-									id="child-count"
 									size="small"
 									variant="outlined"
 									type="number"
@@ -372,9 +399,9 @@ export const CreateBookingForm = ({ handleDialogToggle }: { handleDialogToggle: 
 						/>
 					</Grid>
 
-					{/* Description */}
+					{/* Description (optional) */}
 					<Grid item xs={6}>
-						<InputLabel htmlFor="description">{t('home:description') || 'Description'}</InputLabel>
+						<InputLabel>{t('description') || 'Description'}</InputLabel>
 						<Controller
 							name="description"
 							control={control}
@@ -382,7 +409,6 @@ export const CreateBookingForm = ({ handleDialogToggle }: { handleDialogToggle: 
 								<TextField
 									{...field}
 									fullWidth
-									id="description"
 									size="small"
 									variant="outlined"
 									error={!!fieldState.error}
@@ -392,49 +418,24 @@ export const CreateBookingForm = ({ handleDialogToggle }: { handleDialogToggle: 
 						/>
 					</Grid>
 
-					{/* Discount + isHourly Checkboxlar */}
+					{/* Discount checkbox + fields */}
 					<Grid item xs={12}>
 						<Grid container spacing={2} alignItems="center">
-							{/* Discount Checkbox */}
 							<Grid item>
 								<Checkbox
 									checked={showDiscountFields}
 									onChange={(e) => setShowDiscountFields(e.target.checked)}
 								/>
 								<Typography variant="body1" component="span">
-									{t('home:youWantDiscount') || 'You want discount'}
+									{t('youWantDiscount') || 'You want discount'}
 								</Typography>
-							</Grid>
-
-							{/* isHourly Checkbox */}
-							<Grid item>
-								<Controller
-									name="isHourly"
-									control={control}
-									render={({ field }) => (
-										<>
-											<Checkbox
-												{...field}
-												checked={field.value}
-												onChange={(e) => field.onChange(e.target.checked)}
-											/>
-											<Typography variant="body1" component="span">
-												{t('home:isHourly') || 'isHourly'}
-											</Typography>
-										</>
-									)}
-								/>
 							</Grid>
 						</Grid>
 
-						{/* Collapsible Fields for Discount */}
 						<Collapse unmountOnExit in={showDiscountFields} timeout="auto">
 							<Grid container columnSpacing={5} mt={2}>
-								{/* DiscountAmount Input */}
 								<Grid item xs={6}>
-									<InputLabel htmlFor="discount-amount">
-										{t('home:discountAmount') || 'Discount Amount'}
-									</InputLabel>
+									<InputLabel>{t('discountAmount') || 'Discount Amount'}</InputLabel>
 									<Controller
 										name="discountAmount"
 										control={control}
@@ -442,7 +443,6 @@ export const CreateBookingForm = ({ handleDialogToggle }: { handleDialogToggle: 
 											<TextField
 												{...field}
 												fullWidth
-												id="discount-amount"
 												size="small"
 												variant="outlined"
 												type="number"
@@ -452,12 +452,8 @@ export const CreateBookingForm = ({ handleDialogToggle }: { handleDialogToggle: 
 										)}
 									/>
 								</Grid>
-
-								{/* DiscountReason Input */}
 								<Grid item xs={6}>
-									<InputLabel htmlFor="discount-reason">
-										{t('home:discountReason') || 'Discount Reason'}
-									</InputLabel>
+									<InputLabel>{t('discountReason') || 'Discount Reason'}</InputLabel>
 									<Controller
 										name="discountReason"
 										control={control}
@@ -465,7 +461,6 @@ export const CreateBookingForm = ({ handleDialogToggle }: { handleDialogToggle: 
 											<TextField
 												{...field}
 												fullWidth
-												id="discount-reason"
 												size="small"
 												variant="outlined"
 												error={!!fieldState.error}
@@ -478,9 +473,9 @@ export const CreateBookingForm = ({ handleDialogToggle }: { handleDialogToggle: 
 						</Collapse>
 					</Grid>
 
-					{/* Rooms */}
+					{/* Rooms (required) */}
 					<Grid item xs={6}>
-						<InputLabel>{t('home:rooms') || 'Rooms'}</InputLabel>
+						<InputLabel>{t('rooms') || 'Rooms'}</InputLabel>
 						<Controller
 							name="rooms"
 							control={control}
@@ -489,41 +484,31 @@ export const CreateBookingForm = ({ handleDialogToggle }: { handleDialogToggle: 
 									{...field}
 									multiple
 									options={roomList}
-									getOptionLabel={(option: RoomResponseDto) =>
-										`${option.roomNumber} - ${option.roomStatus}`
-									}
+									size="small"
+									getOptionLabel={(opt: RoomResponseDto) => `${opt.roomNumber} - ${opt.roomStatus}`}
 									isOptionEqualToValue={(option, value) => option.key === value.key}
+									value={roomList.filter((r) => field.value.includes(r.key))}
 									renderInput={(params) => (
 										<TextField
 											{...params}
 											variant="outlined"
+											size="small"
 											error={!!fieldState.error}
 											helperText={fieldState.error?.message}
 										/>
 									)}
-									onChange={(_, selectedOptions) => {
-										// selectedOptions => RoomResponseDto[]
-										// room.key => number
-										// Dikkat: room.key eğer undefined olabiliyorsa, filter(Boolean) vs. yapabilirsiniz
-										const keys = selectedOptions.map((room) => room.key);
-										// Artık keys => number[] olmalı
+									onChange={(_, selected) => {
+										const keys = selected.map((x) => x.key);
 										field.onChange(keys);
 									}}
-									size="small"
-									// Aşağıda 'value' ve 'onChange' uyumlu olması çok önemli!
-									value={
-										// field.value bir number[]
-										// roomList içindeki "option.key" ile eşleşeni buluyoruz
-										roomList.filter((room) => field.value.includes(room.key))
-									}
 								/>
 							)}
 						/>
 					</Grid>
 
-					{/* Room Extras */}
+					{/* Room Extras (optional) */}
 					<Grid item xs={6}>
-						<InputLabel>{t('home:roomExtras') || 'Room Extras'}</InputLabel>
+						<InputLabel>{t('roomExtras') || 'Room Extras'}</InputLabel>
 						<Controller
 							name="roomExtras"
 							control={control}
@@ -532,37 +517,35 @@ export const CreateBookingForm = ({ handleDialogToggle }: { handleDialogToggle: 
 									{...field}
 									multiple
 									options={roomExtraList}
-									getOptionLabel={(option: RoomExtraResponseDto) =>
-										`${option.extraName} - ${option.price}`
-									}
 									size="small"
-									value={roomExtraList.filter((extra) => field.value?.includes(extra.key))}
+									getOptionLabel={(opt: RoomExtraResponseDto) => `${opt.extraName} - ${opt.price}`}
 									isOptionEqualToValue={(option, value) => option.key === value.key}
+									value={roomExtraList.filter((extra) => field.value?.includes(extra.key))}
 									renderInput={(params) => (
 										<TextField
 											{...params}
-											fullWidth
 											variant="outlined"
+											size="small"
 											error={!!fieldState.error}
 											helperText={fieldState.error?.message}
 										/>
 									)}
-									onChange={(_, data) => field.onChange(data.map((item) => item.key))}
+									onChange={(_, selected) => field.onChange(selected.map((x) => x.key))}
 								/>
 							)}
 						/>
 					</Grid>
 
-					{/* Guests */}
+					{/* Guests (optional) */}
 					<Grid item xs={12}>
-						<Checkbox checked={showGuests} onChange={(e) => setShowGuests(e.target.checked)} />{' '}
-						{t('home:enableGuests') || 'Enable Guests'}
+						<Checkbox checked={showGuests} onChange={(e) => setShowGuests(e.target.checked)} />
+						{t('enableGuests') || 'Enable Guests'}
 						<Collapse unmountOnExit in={showGuests} timeout="auto">
 							<Grid container spacing={2}>
 								{fields.map((item, index) => (
 									<Grid key={item.id} container spacing={2} alignItems="center">
 										<Grid item xs={6}>
-											<InputLabel>{t('home:name') || 'Name'}</InputLabel>
+											<InputLabel>{t('guestName') || 'Name'}</InputLabel>
 											<Controller
 												name={`guests.${index}.name`}
 												control={control}
@@ -579,7 +562,7 @@ export const CreateBookingForm = ({ handleDialogToggle }: { handleDialogToggle: 
 											/>
 										</Grid>
 										<Grid item xs={6}>
-											<InputLabel>{t('home:surname') || 'Surname'}</InputLabel>
+											<InputLabel>{t('guestSurname') || 'Surname'}</InputLabel>
 											<Controller
 												name={`guests.${index}.surname`}
 												control={control}
@@ -596,7 +579,7 @@ export const CreateBookingForm = ({ handleDialogToggle }: { handleDialogToggle: 
 											/>
 										</Grid>
 										<Grid item xs={6}>
-											<InputLabel>{t('home:fatherName') || 'Father Name'}</InputLabel>
+											<InputLabel>{t('guestFatherName') || 'Father Name'}</InputLabel>
 											<Controller
 												name={`guests.${index}.fatherName`}
 												control={control}
@@ -613,7 +596,7 @@ export const CreateBookingForm = ({ handleDialogToggle }: { handleDialogToggle: 
 											/>
 										</Grid>
 										<Grid item xs={6}>
-											<InputLabel>{t('home:passportNo') || 'Passport No'}</InputLabel>
+											<InputLabel>{t('guestPassportNo') || 'Passport No'}</InputLabel>
 											<Controller
 												name={`guests.${index}.passportNo`}
 												control={control}
@@ -630,14 +613,13 @@ export const CreateBookingForm = ({ handleDialogToggle }: { handleDialogToggle: 
 											/>
 										</Grid>
 										<Grid item xs={6}>
-											<InputLabel>{t('home:birthday') || 'Birthday'}</InputLabel>
+											<InputLabel>{t('guestBirthday') || 'Birthday'}</InputLabel>
 											<Controller
 												name={`guests.${index}.birthday`}
 												control={control}
 												render={({ field, fieldState }) => (
 													<LocalizationProvider dateAdapter={AdapterDayjs}>
 														<MobileDateTimePicker
-															{...field}
 															value={field.value ? dayjs(field.value) : null}
 															slots={{
 																textField: (params) => (
@@ -651,8 +633,8 @@ export const CreateBookingForm = ({ handleDialogToggle }: { handleDialogToggle: 
 																	/>
 																),
 															}}
-															onChange={(value) =>
-																field.onChange(value ? value.toISOString() : '')
+															onChange={(val) =>
+																field.onChange(val ? val.toISOString() : '')
 															}
 														/>
 													</LocalizationProvider>
@@ -665,21 +647,20 @@ export const CreateBookingForm = ({ handleDialogToggle }: { handleDialogToggle: 
 												color="error"
 												onClick={() => {
 													if (fields.length === 1) {
-														// Sadece bir satır kalmışsa boş değerlere reset
+														// reset the only row
 														setValue(`guests.${index}`, {
 															name: '',
 															surname: '',
 															fatherName: '',
 															passportNo: '',
-															birthday: dayjs().toISOString(),
+															birthday: '',
 														});
 													} else {
-														// Birden çok satır varsa direkt kaldır
 														remove(index);
 													}
 												}}
 											>
-												{t('home:clear') || 'Clear'}
+												{t('clear') || 'Clear'}
 											</Button>
 										</Grid>
 									</Grid>
@@ -693,11 +674,11 @@ export const CreateBookingForm = ({ handleDialogToggle }: { handleDialogToggle: 
 												surname: '',
 												fatherName: '',
 												passportNo: '',
-												birthday: dayjs().toISOString(),
+												birthday: '',
 											})
 										}
 									>
-										{t('home:addGuest') || 'Add'}
+										{t('addGuest') || 'Add'}
 									</Button>
 								</Grid>
 							</Grid>
@@ -707,7 +688,7 @@ export const CreateBookingForm = ({ handleDialogToggle }: { handleDialogToggle: 
 
 				{/* CreateCustomer Modal */}
 				<Modal
-					title={t('home:createCustomer') || 'Create Customer'}
+					title={t('createCustomer') || 'Create Customer'}
 					maxWidth="lg"
 					open={showCreateCustomerToggle}
 					onClose={handleCreateCustomerToggle}
@@ -716,19 +697,12 @@ export const CreateBookingForm = ({ handleDialogToggle }: { handleDialogToggle: 
 				</Modal>
 
 				{/* Submit & Discard Buttons */}
-				<Box
-					sx={{
-						display: 'flex',
-						justifyContent: 'space-between',
-						mt: 2,
-						width: '100%',
-					}}
-				>
+				<Box sx={{ display: 'flex', justifyContent: 'start', mt: 2, width: '100%', gap: 2 }}>
 					<Button type="submit" variant="contained">
-						{t('home:submit') || 'Submit'}
+						{t('submit') || 'Submit'}
 					</Button>
 					<Button type="button" variant="outlined" color="secondary" onClick={handleDialogToggle}>
-						{t('home:discard') || 'Discard'}
+						{t('discard') || 'Discard'}
 					</Button>
 				</Box>
 			</Box>

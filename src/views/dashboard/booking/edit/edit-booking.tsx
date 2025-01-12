@@ -2,12 +2,13 @@ import { Autocomplete, Box, Button, Grid, InputLabel, TextField } from '@mui/mat
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { roomType, RoomTypeResponseDto } from 'api/services/room-type';
 import { specialDayPrice, SpecialDayPriceResponseDto } from 'api/services/special-day-price';
-import { Form, Formik } from 'formik';
 import dayjs, { Dayjs } from 'dayjs';
+import { Form, Formik } from 'formik';
+import { queryClient } from 'main';
 import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
+
 import { validationSchema } from './validationSchema';
-import { queryClient } from 'main';
 
 interface Props {
 	priceProp: SpecialDayPriceResponseDto | null; // camelCase
@@ -23,7 +24,7 @@ interface FormData {
 	description: string;
 }
 
-export const EditSpecialDayPriceForm = ({ priceProp, handleEditDialogToggle }: Props) => {
+export const EditBooking = ({ priceProp, handleEditDialogToggle }: Props) => {
 	const { t } = useTranslation();
 
 	const { mutate: updateSpecialDayPrice } = useMutation({
