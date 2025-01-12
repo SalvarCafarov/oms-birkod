@@ -1,1 +1,1 @@
-export { SpecialDayPrice as default } from './special-day-price';
+export { Booking as default } from './booking';

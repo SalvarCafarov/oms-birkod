@@ -49,12 +49,7 @@ export const CreateBookingForm = ({ handleDialogToggle }: CreateBookingFormProps
 	const [showCreateCustomerToggle, setShowCreateCustomerToggle] = useState(false);
 
 	// react-hook-form with Zod
-	const {
-		control,
-		handleSubmit,
-		setValue,
-		formState: { errors },
-	} = useForm<FormData>({
+	const { control, handleSubmit, setValue } = useForm<FormData>({
 		resolver: zodResolver(getBookingSchema(showDiscountFields, showGuests, t)),
 		defaultValues: {
 			CustomerId: undefined,
@@ -130,7 +125,7 @@ export const CreateBookingForm = ({ handleDialogToggle }: CreateBookingFormProps
 			toast.success(t('home:bookingAddedSuccess') || 'added successfully!');
 			handleDialogToggle();
 		},
-		onError: (error: any) => {
+		onError: (error) => {
 			toast.error(error?.message || t('home:bookingAddError') || 'Error while adding booking');
 		},
 	});
