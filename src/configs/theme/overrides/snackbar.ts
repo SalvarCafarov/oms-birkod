@@ -1,3 +1,5 @@
+import { extractRGB } from 'utils/extract-rgb'; // extractRGB dahil edildi
+
 import { Skin } from '../types';
 import { OwnerStateThemeType } from './';
 
@@ -7,7 +9,8 @@ const Snackbar = (skin: Skin) => {
 			styleOverrides: {
 				root: ({ theme }: OwnerStateThemeType) => ({
 					...(skin === 'bordered' && { boxShadow: 'none' }),
-					backgroundColor: `rgb(${theme.palette.customColors.main})`,
+					// extractRGB ile olası rgba/rgb problemini çözüyoruz
+					backgroundColor: `rgb(${extractRGB(theme.palette.customColors.main)})`,
 					color: theme.palette.common[theme.palette.mode === 'light' ? 'white' : 'black'],
 				}),
 			},

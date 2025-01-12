@@ -1,4 +1,5 @@
-import { hexToRGBA } from 'utils/hex-to-rgba';
+import { extractRGB } from 'utils/extract-rgb'; // RBG/rgba temizleyici fonksiyon
+import { hexToRGBA } from 'utils/hex-to-rgba'; // Hex to RGBA dönüştürmek için mevcut fonksiyon
 
 import { OwnerStateThemeType } from './';
 
@@ -9,11 +10,11 @@ const Backdrop = () => {
 				root: ({ theme }: OwnerStateThemeType) => ({
 					backgroundColor:
 						theme.palette.mode === 'light'
-							? `rgba(${theme.palette.customColors.main}, 0.7)`
-							: hexToRGBA(theme.palette.background.default, 0.7),
+							? `rgba(${extractRGB(theme.palette.customColors.main)}, 0.7)` // Burada extractRGB kullanılıyor
+							: hexToRGBA(theme.palette.background.default, 0.7), // Bu zaten doğru
 				}),
 				invisible: {
-					backgroundColor: 'transparent',
+					backgroundColor: 'transparent', // Invisible durumunda transparan arka plan kullanımı
 				},
 			},
 		},

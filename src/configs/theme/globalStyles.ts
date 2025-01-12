@@ -2,6 +2,8 @@ import { Theme } from '@mui/material/styles';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const GlobalStyles = (theme: Theme) => {
+	console.log(theme.palette);
+
 	return {
 		'.demo-space-x > *': {
 			marginTop: '1rem !important',

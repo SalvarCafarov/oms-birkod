@@ -24,9 +24,9 @@ const DefaultPalette = (mode: PaletteMode, skin: Skin): ThemeOptions => {
 		palette: {
 			mode,
 			customColors: {
-				dark: `rgba(${darkColor}, 1)`,
-				main: `rgba(${mainColor}, 1)`,
-				light: `rgba(${lightColor}, 1)`,
+				dark: `rgba(${darkColor})`,
+				main: `rgba(${mainColor})`,
+				light: `rgba(${lightColor})`,
 				lightPaperBg: whiteColor,
 				darkPaperBg: darkPaperBgColor,
 				bodyBg: mode === 'light' ? '#F8F7FA' : '#25293C',

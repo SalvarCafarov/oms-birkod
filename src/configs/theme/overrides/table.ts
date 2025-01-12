@@ -1,3 +1,5 @@
+import { extractRGB } from 'utils/extract-rgb';
+
 import { OwnerStateThemeType } from './';
 
 const Table = () => {
@@ -53,13 +55,15 @@ const Table = () => {
 		MuiTableCell: {
 			styleOverrides: {
 				root: ({ theme }: OwnerStateThemeType) => ({
-					borderBottom: `1px solid ${theme.palette.divider}`,
+					// extractRGB kullanılarak rgba formatı düzeltiliyor
+					borderBottom: `1px solid rgba(${extractRGB(theme.palette.divider)}, 0.99)`,
 				}),
 				paddingCheckbox: ({ theme }: OwnerStateThemeType) => ({
 					paddingLeft: theme.spacing(3.25),
 				}),
 				stickyHeader: ({ theme }: OwnerStateThemeType) => ({
-					backgroundColor: theme.palette.customColors.tableHeaderBg,
+					// extractRGB kullanımı
+					backgroundColor: `rgba(${extractRGB(theme.palette.customColors.tableHeaderBg)}, 0.99)`,
 				}),
 			},
 		},

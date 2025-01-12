@@ -1,3 +1,4 @@
+import { extractRGB } from 'utils/extract-rgb'; // extractRGB fonksiyonu eklendi
 import { hexToRGBA } from 'utils/hex-to-rgba';
 
 import { OwnerStateThemeType } from './';
@@ -27,8 +28,9 @@ const Menu = () => {
 						marginBottom: 0,
 					},
 					'&:not(.Mui-focusVisible):hover': {
+						// extractRGB kullanılarak olası 'rgba(rgba(...))' hatası önlenir
 						color: theme.palette.primary.main,
-						backgroundColor: hexToRGBA(theme.palette.primary.main, 0.08),
+						backgroundColor: hexToRGBA(extractRGB(theme.palette.primary.main), 0.08),
 						'& .MuiListItemIcon-root, & .MuiListItemText-primary, & .MuiListItemText-secondary, & .MuiListItemSecondaryAction-root .MuiIconButton-root':
 							{
 								color: theme.palette.primary.main,

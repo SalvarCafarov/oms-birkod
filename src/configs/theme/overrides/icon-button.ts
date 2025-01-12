@@ -1,3 +1,4 @@
+import { extractRGB } from 'utils/extract-rgb'; // extractRGB fonksiyonu eklendi
 import { hexToRGBA } from 'utils/hex-to-rgba';
 
 import { OwnerStateThemeType } from './';
@@ -9,7 +10,7 @@ const IconButton = {
 				props: { color: 'primary' },
 				style: ({ theme }: OwnerStateThemeType) => ({
 					'&:hover': {
-						backgroundColor: hexToRGBA(theme.palette.primary.main, 0.08),
+						backgroundColor: hexToRGBA(extractRGB(theme.palette.primary.main), 0.08),
 					},
 				}),
 			},
@@ -17,7 +18,7 @@ const IconButton = {
 				props: { color: 'secondary' },
 				style: ({ theme }: OwnerStateThemeType) => ({
 					'&:hover': {
-						backgroundColor: hexToRGBA(theme.palette.secondary.main, 0.08),
+						backgroundColor: hexToRGBA(extractRGB(theme.palette.secondary.main), 0.08),
 					},
 				}),
 			},
@@ -25,7 +26,7 @@ const IconButton = {
 				props: { color: 'success' },
 				style: ({ theme }: OwnerStateThemeType) => ({
 					'&:hover': {
-						backgroundColor: hexToRGBA(theme.palette.success.main, 0.08),
+						backgroundColor: hexToRGBA(extractRGB(theme.palette.success.main), 0.08),
 					},
 				}),
 			},
@@ -33,7 +34,7 @@ const IconButton = {
 				props: { color: 'error' },
 				style: ({ theme }: OwnerStateThemeType) => ({
 					'&:hover': {
-						backgroundColor: hexToRGBA(theme.palette.error.main, 0.08),
+						backgroundColor: hexToRGBA(extractRGB(theme.palette.error.main), 0.08),
 					},
 				}),
 			},
@@ -41,7 +42,7 @@ const IconButton = {
 				props: { color: 'warning' },
 				style: ({ theme }: OwnerStateThemeType) => ({
 					'&:hover': {
-						backgroundColor: hexToRGBA(theme.palette.warning.main, 0.08),
+						backgroundColor: hexToRGBA(extractRGB(theme.palette.warning.main), 0.08),
 					},
 				}),
 			},
@@ -49,7 +50,7 @@ const IconButton = {
 				props: { color: 'info' },
 				style: ({ theme }: OwnerStateThemeType) => ({
 					'&:hover': {
-						backgroundColor: hexToRGBA(theme.palette.info.main, 0.08),
+						backgroundColor: hexToRGBA(extractRGB(theme.palette.info.main), 0.08),
 					},
 				}),
 			},
@@ -57,7 +58,8 @@ const IconButton = {
 		styleOverrides: {
 			root: ({ theme }: OwnerStateThemeType) => ({
 				'&:hover': {
-					backgroundColor: `rgba(${theme.palette.customColors.main}, 0.08)`,
+					// extractRGB burada kullanıldı
+					backgroundColor: `rgba(${extractRGB(theme.palette.customColors.main)}, 0.08)`,
 				},
 			}),
 		},

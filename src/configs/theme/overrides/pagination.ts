@@ -1,56 +1,59 @@
+import { extractRGB } from 'utils/extract-rgb'; // extractRGB fonksiyonu eklendi
 import { hexToRGBA } from 'utils/hex-to-rgba';
 
 import { OwnerStateThemeType } from './';
 
-const Pagination = () => {
+const Menu = () => {
 	return {
-		MuiPaginationItem: {
+		MuiMenu: {
+			styleOverrides: {
+				paper: ({ theme }: OwnerStateThemeType) => ({
+					'& .MuiMenuItem-root .MuiCheckbox-root.Mui-checked path:first-of-type': {
+						fill: theme.palette.common.white,
+					},
+					'& .MuiMenuItem-root .MuiCheckbox-root.Mui-checked path:last-of-type': {
+						fill: theme.palette.primary.main,
+						stroke: theme.palette.primary.main,
+					},
+				}),
+			},
+		},
+		MuiMenuItem: {
 			styleOverrides: {
 				root: ({ theme }: OwnerStateThemeType) => ({
-					height: 38,
-					minWidth: 38,
-					'&:not(.MuiPaginationItem-rounded)': {
-						borderRadius: '50%',
+					padding: theme.spacing(2, 4),
+					margin: theme.spacing(0, 2, 1),
+					borderRadius: theme.shape.borderRadius,
+					'&:last-child': {
+						marginBottom: 0,
 					},
-					'&:not(.MuiPaginationItem-outlined):not(.Mui-disabled)': {
-						transition: theme.transitions.create(['color', 'background-color', 'box-shadow'], {
-							duration: 250,
-							easing: 'cubic-bezier(0.4, 0, 0.2, 1)',
-						}),
-						'&.Mui-selected': {
-							boxShadow: theme.shadows[2],
+					'&:not(.Mui-focusVisible):hover': {
+						// extractRGB kullanılarak olası 'rgba(rgba(...))' hatası önlenir
+						color: theme.palette.primary.main,
+						backgroundColor: hexToRGBA(extractRGB(theme.palette.primary.main), 0.08),
+						'& .MuiListItemIcon-root, & .MuiListItemText-primary, & .MuiListItemText-secondary, & .MuiListItemSecondaryAction-root .MuiIconButton-root':
+							{
+								color: theme.palette.primary.main,
+							},
+					},
+					'&.Mui-selected': {
+						color: `${theme.palette.common.white} !important`,
+						backgroundColor: `${theme.palette.primary.main} !important`,
+						'&.Mui-focusVisible': {
+							backgroundColor: `${theme.palette.primary.dark} !important`,
 						},
+						'& .MuiListItemIcon-root, & .MuiListItemText-primary, & .MuiListItemText-secondary, & .MuiListItemSecondaryAction-root .MuiIconButton-root':
+							{
+								color: `${theme.palette.common.white} !important`,
+							},
 					},
 				}),
-				sizeSmall: {
-					height: 28,
-					minWidth: 28,
-					borderRadius: 4,
-				},
-				sizeLarge: {
-					height: 48,
-					minWidth: 48,
-					borderRadius: 8,
-				},
-				ellipsis: {
-					height: 'auto',
-				},
-				outlined: ({ theme }: OwnerStateThemeType) => ({
-					borderColor: `rgba(${theme.palette.customColors.main}, 0.2)`,
-				}),
-				outlinedPrimary: ({ theme }: OwnerStateThemeType) => ({
-					'&.Mui-selected': {
-						backgroundColor: hexToRGBA(theme.palette.primary.main, 0.16),
-					},
-				}),
-				outlinedSecondary: ({ theme }: OwnerStateThemeType) => ({
-					'&.Mui-selected': {
-						backgroundColor: hexToRGBA(theme.palette.secondary.main, 0.16),
-					},
-				}),
+			},
+			defaultProps: {
+				disableRipple: true,
 			},
 		},
 	};
 };
 
-export default Pagination;
+export default Menu;

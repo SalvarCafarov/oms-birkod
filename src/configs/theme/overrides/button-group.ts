@@ -1,4 +1,5 @@
-import { hexToRGBA } from 'utils/hex-to-rgba';
+import { extractRGB } from 'utils/extract-rgb'; // extractRGB fonksiyonu ile RGBA değerlerini temizliyoruz
+import { hexToRGBA } from 'utils/hex-to-rgba'; // Hex'i RGBA'ya dönüştüren mevcut fonksiyon
 
 import { OwnerStateThemeType } from './';
 
@@ -46,7 +47,7 @@ const ButtonGroup = () => {
 					props: { variant: 'tonal', color: 'primary', orientation: 'horizontal' },
 					style: ({ theme }: OwnerStateThemeType) => ({
 						'& .MuiButton-tonal:not(:last-child)': {
-							borderRight: `1px solid ${hexToRGBA(theme.palette.primary.main, 0.24)}`,
+							borderRight: `1px solid ${hexToRGBA(extractRGB(theme.palette.primary.main), 0.24)}`,
 						},
 					}),
 				},
@@ -54,7 +55,7 @@ const ButtonGroup = () => {
 					props: { variant: 'tonal', color: 'secondary', orientation: 'horizontal' },
 					style: ({ theme }: OwnerStateThemeType) => ({
 						'& .MuiButton-tonal:not(:last-child)': {
-							borderRight: `1px solid ${hexToRGBA(theme.palette.secondary.main, 0.24)}`,
+							borderRight: `1px solid ${hexToRGBA(extractRGB(theme.palette.secondary.main), 0.24)}`,
 						},
 					}),
 				},
@@ -62,7 +63,7 @@ const ButtonGroup = () => {
 					props: { variant: 'tonal', color: 'error', orientation: 'horizontal' },
 					style: ({ theme }: OwnerStateThemeType) => ({
 						'& .MuiButton-tonal:not(:last-child)': {
-							borderRight: `1px solid ${hexToRGBA(theme.palette.error.main, 0.24)}`,
+							borderRight: `1px solid ${hexToRGBA(extractRGB(theme.palette.error.main), 0.24)}`,
 						},
 					}),
 				},
@@ -70,7 +71,7 @@ const ButtonGroup = () => {
 					props: { variant: 'tonal', color: 'warning', orientation: 'horizontal' },
 					style: ({ theme }: OwnerStateThemeType) => ({
 						'& .MuiButton-tonal:not(:last-child)': {
-							borderRight: `1px solid ${hexToRGBA(theme.palette.warning.main, 0.24)}`,
+							borderRight: `1px solid ${hexToRGBA(extractRGB(theme.palette.warning.main), 0.24)}`,
 						},
 					}),
 				},
@@ -78,7 +79,7 @@ const ButtonGroup = () => {
 					props: { variant: 'tonal', color: 'info', orientation: 'horizontal' },
 					style: ({ theme }: OwnerStateThemeType) => ({
 						'& .MuiButton-tonal:not(:last-child)': {
-							borderRight: `1px solid ${hexToRGBA(theme.palette.info.main, 0.24)}`,
+							borderRight: `1px solid ${hexToRGBA(extractRGB(theme.palette.info.main), 0.24)}`,
 						},
 					}),
 				},
@@ -86,7 +87,7 @@ const ButtonGroup = () => {
 					props: { variant: 'tonal', color: 'success', orientation: 'horizontal' },
 					style: ({ theme }: OwnerStateThemeType) => ({
 						'& .MuiButton-tonal:not(:last-child)': {
-							borderRight: `1px solid ${hexToRGBA(theme.palette.success.main, 0.24)}`,
+							borderRight: `1px solid ${hexToRGBA(extractRGB(theme.palette.success.main), 0.24)}`,
 						},
 					}),
 				},
@@ -94,7 +95,7 @@ const ButtonGroup = () => {
 					props: { variant: 'tonal', color: 'primary', orientation: 'vertical' },
 					style: ({ theme }: OwnerStateThemeType) => ({
 						'& .MuiButton-tonal:not(:last-child)': {
-							borderBottom: `1px solid ${hexToRGBA(theme.palette.primary.main, 0.24)}`,
+							borderBottom: `1px solid ${hexToRGBA(extractRGB(theme.palette.primary.main), 0.24)}`,
 						},
 					}),
 				},
@@ -102,7 +103,7 @@ const ButtonGroup = () => {
 					props: { variant: 'tonal', color: 'secondary', orientation: 'vertical' },
 					style: ({ theme }: OwnerStateThemeType) => ({
 						'& .MuiButton-tonal:not(:last-child)': {
-							borderBottom: `1px solid ${hexToRGBA(theme.palette.secondary.main, 0.24)}`,
+							borderBottom: `1px solid ${hexToRGBA(extractRGB(theme.palette.secondary.main), 0.24)}`,
 						},
 					}),
 				},
@@ -110,7 +111,7 @@ const ButtonGroup = () => {
 					props: { variant: 'tonal', color: 'error', orientation: 'vertical' },
 					style: ({ theme }: OwnerStateThemeType) => ({
 						'& .MuiButton-tonal:not(:last-child)': {
-							borderBottom: `1px solid ${hexToRGBA(theme.palette.error.main, 0.24)}`,
+							borderBottom: `1px solid ${hexToRGBA(extractRGB(theme.palette.error.main), 0.24)}`,
 						},
 					}),
 				},
@@ -118,7 +119,7 @@ const ButtonGroup = () => {
 					props: { variant: 'tonal', color: 'warning', orientation: 'vertical' },
 					style: ({ theme }: OwnerStateThemeType) => ({
 						'& .MuiButton-tonal:not(:last-child)': {
-							borderBottom: `1px solid ${hexToRGBA(theme.palette.warning.main, 0.24)}`,
+							borderBottom: `1px solid ${hexToRGBA(extractRGB(theme.palette.warning.main), 0.24)}`,
 						},
 					}),
 				},
@@ -126,7 +127,7 @@ const ButtonGroup = () => {
 					props: { variant: 'tonal', color: 'info', orientation: 'vertical' },
 					style: ({ theme }: OwnerStateThemeType) => ({
 						'& .MuiButton-tonal:not(:last-child)': {
-							borderBottom: `1px solid ${hexToRGBA(theme.palette.info.main, 0.24)}`,
+							borderBottom: `1px solid ${hexToRGBA(extractRGB(theme.palette.info.main), 0.24)}`,
 						},
 					}),
 				},
@@ -134,7 +135,7 @@ const ButtonGroup = () => {
 					props: { variant: 'tonal', color: 'success', orientation: 'vertical' },
 					style: ({ theme }: OwnerStateThemeType) => ({
 						'& .MuiButton-tonal:not(:last-child)': {
-							borderBottom: `1px solid ${hexToRGBA(theme.palette.success.main, 0.24)}`,
+							borderBottom: `1px solid ${hexToRGBA(extractRGB(theme.palette.success.main), 0.24)}`,
 						},
 					}),
 				},

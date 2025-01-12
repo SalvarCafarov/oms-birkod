@@ -1,3 +1,5 @@
+import { extractRGB } from 'utils/extract-rgb';
+
 import { OwnerStateThemeType } from './';
 
 const Tabs = () => {
@@ -7,13 +9,15 @@ const Tabs = () => {
 				root: ({ theme }: OwnerStateThemeType) => ({
 					minHeight: 38,
 					'&:not(.MuiTabs-vertical)': {
-						borderBottom: `1px solid ${theme.palette.divider}`,
+						// extractRGB ile borderBottom düzenlendi
+						borderBottom: `1px solid rgba(${extractRGB(theme.palette.divider)}, 0.99)`,
 					},
 				}),
 				vertical: ({ theme }: OwnerStateThemeType) => ({
 					minWidth: 130,
 					marginRight: theme.spacing(4),
-					borderRight: `1px solid ${theme.palette.divider}`,
+					// extractRGB ile borderRight düzenlendi
+					borderRight: `1px solid rgba(${extractRGB(theme.palette.divider)}, 0.99)`,
 					'& .MuiTab-root': {
 						minWidth: 130,
 					},

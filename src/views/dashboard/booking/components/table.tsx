@@ -12,7 +12,7 @@ import { useState } from 'react';
 import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
 
-import { EditSpecialDayPriceForm } from '../edit/edit-special-day-price-form';
+import { EditBooking } from '../edit/edit-booking';
 import { TableHeader } from './table-header';
 
 interface CellType {
@@ -159,7 +159,7 @@ export const Table = () => {
 					/>
 					<Modal open={editOpen} title={t('edit')} onClose={handleEditDialogToggle}>
 						{selectedSpecialDayPrice && (
-							<EditSpecialDayPriceForm
+							<EditBooking
 								priceProp={selectedSpecialDayPrice}
 								handleEditDialogToggle={handleEditDialogToggle}
 							/>

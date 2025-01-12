@@ -1,23 +1,43 @@
-export interface BookingRequestDto {
-	customerId: number;
-	travelAgencyId?: number;
-	startDate: string; // ISO date format
-	endDate?: string; // Optional ISO date format
-	checkIn: boolean;
-	isHourly: boolean;
-	childCount: number;
-	description: string;
-	rooms: number[]; // Array of room IDs
-	guests: GuestDto[];
-	roomExtras: number[]; // Array of extra IDs
-	discountAmount: number;
-	discountReason: string;
-}
+// src/api/services/booking/BookingRequestDto.ts
 
 export interface GuestDto {
 	name: string;
 	surname: string;
-	fatherName: string;
-	passportNo: string;
+	fatherName?: string; // optional
+	passportNo?: string; // optional
 	birthday: string; // ISO date format
+}
+
+export interface BookingRequestDto {
+	customerId: number;
+	travelAgencyId?: number; // optional
+	startDate: string; // ISO 8601
+	endDate?: string; // optional - ISO 8601
+	checkIn?: boolean; // optional (boolean)
+	isHourly: boolean; // required
+	childCount?: number; // optional
+	description?: string; // optional
+	rooms: number[]; // multi-select
+	guests?: GuestDto[] | null; // optional array (null or empty)
+
+	roomExtras?: number[]; // optional - multi-select
+
+	discountAmount: number; // required (discount percentage or amount)
+	discountReason: string; // required (reason for discount)
+}
+
+// UpdateBookingDto - example for a different endpoint
+/*
+  {
+	"key": 0,
+	"bookingNumber": "string",
+	"bookingTypeId": 0,
+	"isAvailable": true
+  }
+  */
+export interface UpdateBookingDto {
+	key: number;
+	bookingNumber: string;
+	bookingTypeId: number;
+	isAvailable: boolean;
 }

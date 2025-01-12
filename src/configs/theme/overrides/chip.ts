@@ -1,3 +1,4 @@
+import { extractRGB } from 'utils/extract-rgb'; // extractRGB fonksiyonunu ekle
 import { hexToRGBA } from 'utils/hex-to-rgba';
 
 import { OwnerStateThemeType } from './';
@@ -17,8 +18,9 @@ const Chip = () => {
 					},
 				}),
 				outlined: ({ theme }: OwnerStateThemeType) => ({
+					// extractRGB yalnızca gerektiği yerde uygular
 					'&.MuiChip-colorDefault': {
-						borderColor: `rgba(${theme.palette.customColors.main}, 0.2)`,
+						borderColor: `rgba(${extractRGB(theme.palette.customColors.main)}, 0.99)`,
 					},
 				}),
 				labelSmall: ({ theme }: OwnerStateThemeType) => ({
@@ -34,7 +36,7 @@ const Chip = () => {
 				}),
 				deletableColorPrimary: ({ theme }: OwnerStateThemeType) => ({
 					'&.MuiChip-light .MuiChip-deleteIcon': {
-						color: hexToRGBA(theme.palette.primary.main, 0.7),
+						color: hexToRGBA(extractRGB(theme.palette.primary.main), 0.7),
 						'&:hover': {
 							color: theme.palette.primary.main,
 						},
@@ -42,7 +44,7 @@ const Chip = () => {
 				}),
 				deletableColorSecondary: ({ theme }: OwnerStateThemeType) => ({
 					'&.MuiChip-light .MuiChip-deleteIcon': {
-						color: hexToRGBA(theme.palette.secondary.main, 0.7),
+						color: hexToRGBA(extractRGB(theme.palette.secondary.main), 0.7),
 						'&:hover': {
 							color: theme.palette.secondary.main,
 						},
@@ -50,7 +52,7 @@ const Chip = () => {
 				}),
 				deletableColorSuccess: ({ theme }: OwnerStateThemeType) => ({
 					'&.MuiChip-light .MuiChip-deleteIcon': {
-						color: hexToRGBA(theme.palette.success.main, 0.7),
+						color: hexToRGBA(extractRGB(theme.palette.success.main), 0.7),
 						'&:hover': {
 							color: theme.palette.success.main,
 						},
@@ -58,7 +60,7 @@ const Chip = () => {
 				}),
 				deletableColorError: ({ theme }: OwnerStateThemeType) => ({
 					'&.MuiChip-light .MuiChip-deleteIcon': {
-						color: hexToRGBA(theme.palette.error.main, 0.7),
+						color: hexToRGBA(extractRGB(theme.palette.error.main), 0.7),
 						'&:hover': {
 							color: theme.palette.error.main,
 						},
@@ -66,7 +68,7 @@ const Chip = () => {
 				}),
 				deletableColorWarning: ({ theme }: OwnerStateThemeType) => ({
 					'&.MuiChip-light .MuiChip-deleteIcon': {
-						color: hexToRGBA(theme.palette.warning.main, 0.7),
+						color: hexToRGBA(extractRGB(theme.palette.warning.main), 0.7),
 						'&:hover': {
 							color: theme.palette.warning.main,
 						},
@@ -74,7 +76,7 @@ const Chip = () => {
 				}),
 				deletableColorInfo: ({ theme }: OwnerStateThemeType) => ({
 					'&.MuiChip-light .MuiChip-deleteIcon': {
-						color: hexToRGBA(theme.palette.info.main, 0.7),
+						color: hexToRGBA(extractRGB(theme.palette.info.main), 0.7),
 						'&:hover': {
 							color: theme.palette.info.main,
 						},

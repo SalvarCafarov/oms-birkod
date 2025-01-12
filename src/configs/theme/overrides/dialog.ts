@@ -1,3 +1,5 @@
+import { extractRGB } from 'utils/extract-rgb'; // extractRGB eklendi
+
 import { Skin } from '../types';
 import { OwnerStateThemeType } from './';
 
@@ -6,8 +8,9 @@ const Dialog = (skin: Skin) => {
 		MuiDialog: {
 			styleOverrides: {
 				paper: ({ theme }: OwnerStateThemeType) => ({
+					// Eğer divider RGBA formatında sorun çıkarıyorsa extractRGB'yi uygula
 					boxShadow: theme.shadows[skin === 'bordered' ? 0 : 18],
-					...(skin === 'bordered' && { border: `1px solid ${theme.palette.divider}` }),
+					...(skin === 'bordered' && { border: `1px solid ${extractRGB(theme.palette.divider)}` }),
 					'&:not(.MuiDialog-paperFullScreen)': {
 						[theme.breakpoints.down('sm')]: {
 							margin: theme.spacing(4),
