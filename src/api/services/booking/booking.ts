@@ -22,7 +22,7 @@ export const booking = {
 
 	// Get List by Dynamic
 	getListByDynamic: (params: PaginationParams, filter?: Filter) =>
-		request.post<GetListByDynamicResponseDto<any>>(
+		request.post<GetListByDynamicResponseDto<unknown>>(
 			'/Booking/GetList/ByDynamic',
 			filter ? (Object.keys(filter).length ? { filter } : {}) : {},
 			{
