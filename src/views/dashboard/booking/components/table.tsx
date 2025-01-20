@@ -1,8 +1,8 @@
 import { Box, Card, IconButton, Typography } from '@mui/material';
 import { DataGrid, GridColDef, GridPaginationModel } from '@mui/x-data-grid';
 import { keepPreviousData, useMutation, useQuery } from '@tanstack/react-query';
+import { booking, BookingDynamicDto } from 'api/services/booking';
 import { roomType } from 'api/services/room-type';
-import { specialDayPrice, SpecialDayPriceResponseDto } from 'api/services/special-day-price';
 import Icon from 'components/icon';
 import { Modal } from 'components/modal/modal';
 import { Spinner } from 'components/spinner';
@@ -12,20 +12,18 @@ import { useState } from 'react';
 import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
 
-import { EditBooking } from '../edit/edit-booking';
+import { EditBookingForm } from '../edit/edit-booking';
 import { TableHeader } from './table-header';
 
 interface CellType {
-	row: SpecialDayPriceResponseDto;
+	row: BookingDynamicDto;
 }
 
 export const Table = () => {
 	const { t } = useTranslation();
 	const { confirm } = useConfirmation();
 	const [editOpen, setEditOpen] = useState<boolean>(false);
-	const [selectedSpecialDayPrice, setSelectedSpecialDayPrice] = useState<SpecialDayPriceResponseDto | undefined>(
-		undefined,
-	);
+	const [selectedBooking, setSelectedBooking] = useState<number | undefined>(undefined);
 
 	const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({
 		page: 0,
@@ -41,18 +39,18 @@ export const Table = () => {
 	});
 
 	// SpecialDayPrice Listesi
-	const { data: specialDayPriceList, isLoading } = useQuery({
-		queryKey: [specialDayPrice.queryKey, paginationModel],
-		queryFn: () => specialDayPrice.getListByDynamic(paginationModel, {}),
+	const { data: bookingList, isLoading } = useQuery({
+		queryKey: [booking.queryKey, paginationModel],
+		queryFn: () => booking.getListByDynamic(paginationModel, {}),
 		placeholderData: keepPreviousData,
 		staleTime: Infinity,
 	});
 
 	// SpecialDayPrice Silme İşlemi
 	const { mutate: deleteSpecialDayPrice } = useMutation({
-		mutationFn: specialDayPrice.delete,
+		mutationFn: booking.delete,
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: [specialDayPrice.queryKey] });
+			queryClient.invalidateQueries({ queryKey: [booking.queryKey] });
 			toast.success(t('successfullyDeleted'));
 		},
 	});
@@ -66,7 +64,7 @@ export const Table = () => {
 			minWidth: 200,
 			headerName: t('Room Type'),
 			renderCell: ({ row }: CellType) => (
-				<Typography sx={{ color: 'text.secondary' }}>{row.roomTypeName}</Typography>
+				<Typography sx={{ color: 'text.secondary' }}>{row.customerName}</Typography>
 			),
 		},
 		{
@@ -84,7 +82,7 @@ export const Table = () => {
 			minWidth: 200,
 			headerName: t('End Date'),
 			renderCell: ({ row }: CellType) => (
-				<Typography sx={{ color: 'text.secondary' }}>{new Date(row.endDate).toLocaleDateString()}</Typography>
+				<Typography sx={{ color: 'text.secondary' }}>{new Date(row.startDate).toLocaleDateString()}</Typography>
 			),
 		},
 		{
@@ -92,9 +90,7 @@ export const Table = () => {
 			field: 'SpecialDailyRate',
 			minWidth: 150,
 			headerName: t('Special Daily Rate'),
-			renderCell: ({ row }: CellType) => (
-				<Typography sx={{ color: 'text.secondary' }}>{row.specialDailyRate}</Typography>
-			),
+			renderCell: ({ row }: CellType) => <Typography sx={{ color: 'text.secondary' }}>{row.endDate}</Typography>,
 		},
 		{
 			flex: 0.3,
@@ -102,7 +98,7 @@ export const Table = () => {
 			minWidth: 150,
 			headerName: t('Special Hourly Rate'),
 			renderCell: ({ row }: CellType) => (
-				<Typography sx={{ color: 'text.secondary' }}>{row.specialHourlyRate}</Typography>
+				<Typography sx={{ color: 'text.secondary' }}>{row.customerName}</Typography>
 			),
 		},
 		{
@@ -115,7 +111,7 @@ export const Table = () => {
 				<Box sx={{ display: 'flex', alignItems: 'center' }}>
 					<IconButton
 						onClick={() => {
-							setSelectedSpecialDayPrice(row);
+							setSelectedBooking(row.key);
 							handleEditDialogToggle();
 						}}
 					>
@@ -148,21 +144,18 @@ export const Table = () => {
 						autoHeight
 						disableRowSelectionOnClick
 						disableColumnMenu
-						rows={specialDayPriceList?.items || []}
+						rows={(bookingList?.items as BookingDynamicDto[]) || []}
 						getRowId={(row) => row.key}
 						columns={columns}
 						paginationMode="server"
-						rowCount={specialDayPriceList?.count}
+						rowCount={bookingList?.count}
 						paginationModel={paginationModel}
 						pageSizeOptions={[10, 25, 50, 100]}
 						onPaginationModelChange={setPaginationModel}
 					/>
 					<Modal open={editOpen} title={t('edit')} onClose={handleEditDialogToggle}>
-						{selectedSpecialDayPrice && (
-							<EditBooking
-								priceProp={selectedSpecialDayPrice}
-								handleEditDialogToggle={handleEditDialogToggle}
-							/>
+						{selectedBooking && (
+							<EditBookingForm keyProp={selectedBooking} handleDialogToggle={handleEditDialogToggle} />
 						)}
 					</Modal>
 				</>
