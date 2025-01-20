@@ -37,7 +37,30 @@ export interface BookingRequestDto {
   */
 export interface UpdateBookingDto {
 	key: number;
-	bookingNumber: string;
-	bookingTypeId: number;
-	isAvailable: boolean;
+	customerId: number;
+	travelAgencyId?: number; // optional
+	startDate: string; // ISO 8601
+	endDate?: string; // optional - ISO 8601
+	checkIn?: boolean; // optional (boolean)
+	isHourly: boolean; // required
+	childCount?: number; // optional
+	description?: string; // optional
+	rooms: number[]; // multi-select
+	guests?: GuestDto[] | null; // optional array (null or empty)
+
+	roomExtras?: number[]; // optional - multi-select
+
+	discountAmount: number; // required (discount percentage or amount)
+	discountReason: string; // required (reason for discount)
+}
+
+export interface BookingDynamicDto {
+	customerName: string;
+	travelAgencyName?: string; // optional
+	startDate: string; // ISO 8601
+	endDate?: string; // optional - ISO 8601
+	checkIn?: boolean; // optional (boolean)
+	checkOut?: boolean; // optional (boolean)
+	finalPrice: number; // required
+	key: number; // required
 }

@@ -132,6 +132,15 @@ export const CreateBookingForm = ({ handleDialogToggle }: CreateBookingFormProps
 
 	// onSubmit
 	const onSubmit = (data: FormData) => {
+		// Filter out guests with all fields empty
+		const filteredGuests = data.guests
+			? data.guests.filter(
+					(g) =>
+						// Keep guests where at least one field is not empty
+						g.name || g.surname || g.fatherName || g.passportNo || g.birthday,
+				)
+			: [];
+
 		// Transform form data into BookingRequestDto
 		const dto: BookingRequestDto = {
 			customerId: data.CustomerId,
@@ -143,21 +152,21 @@ export const CreateBookingForm = ({ handleDialogToggle }: CreateBookingFormProps
 			childCount: data.childCount || undefined,
 			description: data.description || undefined,
 			discountAmount: Number(data.discountAmount),
-			// IMPORTANT: "discountReason" in the interface is required
-			// if your schema allows optional, be sure to fallback to '' or some default
-			discountReason: data.discountReason || '',
-
+			discountReason: data.discountReason || '', // Required fallback to an empty string
 			rooms: data.rooms,
 			roomExtras: data.roomExtras || undefined,
-			guests: data.guests
-				? data.guests.map((g) => ({
-						name: g.name,
-						surname: g.surname,
-						fatherName: g.fatherName || undefined,
-						passportNo: g.passportNo || undefined,
-						birthday: g.birthday,
-					}))
-				: [],
+			// Include guests only if there are valid guests
+			...(filteredGuests.length > 0
+				? {
+						guests: filteredGuests.map((g) => ({
+							name: g.name || '', // Default to empty string if undefined
+							surname: g.surname || '', // Default to empty string if undefined
+							fatherName: g.fatherName || '', // Default to empty string if undefined
+							passportNo: g.passportNo || '', // Default to empty string if undefined
+							birthday: g.birthday || '', // Default to empty string if undefined
+						})),
+					}
+				: {}),
 		};
 
 		// Debug

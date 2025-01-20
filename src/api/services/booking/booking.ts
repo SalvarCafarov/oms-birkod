@@ -30,6 +30,8 @@ export const booking = {
 			},
 		),
 
+	getFormByKey: (key: number) => request.get<UpdateBookingDto>(`/Booking/${key}`),
+
 	// Diğer fonksiyonları (getList vs.) kendiniz yazmak isterseniz, buraya eklemeden bırakabilirsiniz.
 
 	queryKey: 'booking',

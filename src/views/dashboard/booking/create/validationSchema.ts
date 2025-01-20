@@ -29,7 +29,11 @@ export function getBookingSchema(showDiscount: boolean, showGuests: boolean, t: 
 			}),
 
 		// endDate (optional)
-		endDate: z.string().optional(),
+		endDate: z
+			.string({ required_error: t('booking:endDateRequired') })
+			.refine((val) => val !== '' && val !== undefined, {
+				message: t('booking:endDateEmptyError'),
+			}),
 
 		// checkIn (boolean, optional)
 		checkIn: z.boolean().optional(),
